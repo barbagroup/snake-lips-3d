@@ -1,0 +1,275 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Set stages to run.
+castellatedMesh true;  // create the castellated mesh?
+snap true;  // do the surface snapping stage?
+addLayers true;  // add surface layers?
+
+geometry
+{
+    snake
+    {
+        type triSurfaceMesh;
+        file "snake.obj";
+    }
+
+    vicinity
+    {
+        type searchableBox;
+        min (-0.6 -0.6 -1.6);
+        max ( 1.6  0.6  1.6);
+    }
+
+    near_wake
+    {
+        type searchableBox;
+        min (-1.0 -1.0 -1.6);
+        max ( 3.0  1.0  1.6);
+    }
+
+    wake
+    {
+        type searchableBox;
+        min (-2.0 -4.0 -1.6);
+        max ( 12.0 4.0  1.6);
+    }
+
+}; // geometry
+
+castellatedMeshControls
+{
+    // Location vector inside the region to be meshed.
+    // Vector must not coincide with a cell face
+    // either before or during refinement.
+    locationInMesh (-5.0001 -5.0001 0.5001);
+
+    // Max number of cells per processor during refinement.
+    maxLocalCells 2000000;
+
+    // Overall cell limit during refinement (i.e., before removal).
+    maxGlobalCells 2000000;
+
+    // If larger than number of cells to be refined, surface refinement stops.
+    minRefinementCells 10;
+
+    // Allow a certain level of imbalance during refining
+    // (since balancing is quite expensive).
+    maxLoadUnbalance 0.10;
+
+    // Number of buffer layers of cells between successive levels of refinement.
+    // (Typically set to 3.)
+    nCellsBetweenLevels 3;
+
+    // Applies maximum level of refinement to cells that can see intersections
+    // whose angle exceeds resolveFeatureAngle.
+    // (Typically set to 30.)
+    resolveFeatureAngle 30;
+
+    // List of features for refinement.
+    features
+    (
+        {
+            file "snake.eMesh";
+            level 5;
+        }
+    );
+
+    // Dictionary of surfaces for refinement.
+    refinementSurfaces
+    {
+        snake
+        {
+            level (5 5);
+            patchInfo
+            {
+                type wall;
+                physicalType wall;
+            }
+        }
+    }
+
+    // Dictionary of regions for refinement.
+    refinementRegions
+    {
+        vicinity
+        {
+            mode inside;
+            levels ((1e15 5));
+        }
+        near_wake
+        {
+            mode inside;
+            levels ((1e15 4));
+        }
+        wake
+        {
+            mode inside;
+            levels ((1e15 2));
+        }
+    }
+
+    allowFreeStandingZoneFaces true;
+
+} // castellatedMeshControls
+
+snapControls
+{
+    // Number of patch smoothing iterations 
+    // before finding correspondence to surface.
+    // The more iterations, the smoother the mesh will become.i
+    // number of patch smoothing iterations before finding correspondence to surface.
+    // The more iterations, the smoother the mesh will be. (Typically 3.)
+    nSmoothPatch 3;
+
+    // Ratio of distance for points to be attracted 
+    // by surface feature point or edge, to local maximum edge length.
+    // Ratio of distance for points to be attracted by surface feature point
+    // or edge, to local maximum edge length. (Typically 2.0.)
+    tolerance 2.0;
+
+    // Number of mesh displacement relaxation iterations.
+    // The higher, the better mesh quality will be gained.
+    // The higher, the more equidistant mesh will be created when at the boundary.
+    // (Typically 30-100.)
+    nSolveIter 50;
+
+    // Maximum number of snapping relaxation iterations. (Typically 5.)
+    nRelaxIter 5;
+
+} // snapControls
+
+addLayersControls
+{
+    // If true, specified layer thicknesses are relative to undistorted cell size
+    // outside layer or absolute.
+    relativeSizes true;
+
+    // Dictionary specifying layers to be inserted.
+    layers
+    {
+        "snake.*"
+        {
+            nSurfaceLayers 2;
+        }
+  }
+
+    // Expansion factor for layer mesh (size-increase from one layer to the next).
+    expansionRatio 1.1;
+
+    // Thickness of layer furthest from the wall, usually in combination with
+    // relative sizes according to the relativeSizes entry.
+    finalLayerThickness 0.9;
+
+    // Minimum thickness of cell layer, either relative or absolute.
+    minThickness 0.5;
+
+    // If points get not extruded do nGrow layers of connected faces
+    // that are also not grown. This help convergence of the layer addition
+    // process close to features.
+    nGrow 0;
+
+    // Angle above which surface is not extruded.
+    featureAngle 60;
+
+    // Maximum number of snapping relaxation iterations. (Typically 5.)
+    nRelaxIter 5;
+
+    // Number of smoothing iterations of surface normals. (Typically 1.)
+    nSmoothSurfaceNormals 1;
+
+    // Number of smoothing iterations of interior mesh movement direction.
+    // (Typically 3.)
+    nSmoothNormals 3;
+
+    // Smooth layer thickness over surface patches. (Typically 10.)
+    nSmoothThickness 10;
+
+    // Stop layer growth on highly warped cells. (Typically 0.5.)
+    maxFaceThicknessRatio 0.5;
+
+    // Reduce layer growth where ratio thickness to medial distance is large.
+    // (Typically 0.3.)
+    maxThicknessToMedialRatio 0.3;
+
+    // Angle used to pick up medial axis points. (Typically 90.)
+    minMedianAxisAngle 90;
+
+    // Create buffer region for new layer terminations. (Typically 0.)
+    nBufferCellsNoExtrude 0;
+
+    // Overall max number of layer addition iterations. (Typically 50.)
+    nLayerIter 50;
+
+    // Max number of iterations after which the controls in the relaxed
+    // sub-dictionary of meshQuality are used. (Typically 20.)
+    nRelaxedIter 20;
+
+} // addLayersControls
+
+meshQualityControls
+{
+    // Maximum non-orthogonality allowed. (Typically 65.)
+    maxNonOrtho 65;
+
+    // Maximum boundary face skewness allowed. (Typically 20.)
+    maxBoundarySkewness 20;
+
+    // Maximum internal face skewness allowed. (Typically 4.)
+    maxInternalSkewness 4;
+
+    // Max concaveness allowed. (Typically 80.)
+    maxConcave 80;
+
+    // Ratio of minimumprojected area to actual area. (Typically 0.5.)
+    minFlatness 0.5;
+
+    minTetQuality 1e-30;
+
+    // Minimum cell pyramid volume. (Typically 1e-13.)
+    minVol 1e-13;
+
+    // Minimum face area. (Typically -1.)
+    minArea -1;
+
+    // Minimum face twist. (Typically 0.05.)
+    minTwist 0.05;
+
+    // Minimum normalised cell determinant. (Typically 0.001.)
+    minDeterminant 0.001;
+
+    // Between 0 and 0.5. (Typically 0.05.)
+    minFaceWeight 0.05;
+
+    // Between 0 and 1.0. (Typically 0.01.)
+    minVolRatio 0.01;
+
+    // For Fluent compatibility. (Typically -1.)
+    minTriangleTwist -1;
+
+    // Number of error distribution iterations. (Typically 4.)
+    nSmoothScale 4;
+
+    // Amount to scale back displacement at error points. (Typically 0.75.)
+    errorReduction 0.75;
+
+} // meshQualityControls
+
+debug 0;  // control writing: write final mesh only
+
+mergeTolerance 1e-6;  // merge tol as fraction of bounding box of initial mesh
+
+//****************************************************************************//

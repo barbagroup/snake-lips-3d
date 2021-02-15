@@ -1,0 +1,24 @@
+batch_shipyard:
+  storage_account_settings: mystorageaccount
+global_resources:
+  docker_images:
+  - mesnardo/openfoam:v6-gcc-intelmpi-centos
+  volumes:
+    shared_data_volumes:
+      glustervol:
+        volume_driver: glusterfs_on_compute
+        container_path: $AZ_BATCH_NODE_SHARED_DIR/gfs
+        bind_options: rw
+  files:
+  - source:
+      path: .
+      exclude:
+      - '*shipyard*'
+      - '*scripts*'
+      - '*output*'
+      - '*data*'
+    destination:
+      shared_data_volume: glustervol
+      relative_destination_path: case
+      data_transfer:
+        method: rsync+ssh

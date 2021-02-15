@@ -1,0 +1,15 @@
+pool_specification:
+  id: pool-cyl3900-smag
+  vm_configuration:
+    platform_image:
+      publisher: OpenLogic
+      offer: CentOS-HPC
+      sku: '7.1'
+  vm_count:
+    dedicated: 2
+    low_priority: 0
+  vm_size: STANDARD_H16R
+  max_tasks_per_node: 1
+  inter_node_communication_enabled: true
+  ssh:
+    username: shipyard
