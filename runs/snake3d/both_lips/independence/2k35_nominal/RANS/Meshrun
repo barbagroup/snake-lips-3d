@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Run from this directory.
+cd ${0%/*} || exit 1
+
+# Source tool run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Copy initial conditions.
+rm -rf 0 && cp -r 0_org 0
+
+# Create base hexahedral mesh.
+runApplication blockMesh
+
+# Create edge mesh for boxes.
+runApplication surfaceFeatures
+
+# Split and snap mesh.
+runApplication snappyHexMesh -overwrite
+
+# Create patches.
+runApplication createPatch -overwrite
+
+# Check mesh quality.
+runApplication checkMesh
+
+# Decompose the mesh.
+runApplication decomposePar
+
+#------------------------------------------------------------------------------

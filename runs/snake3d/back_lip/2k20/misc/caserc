@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+# Set case directory.
+export AZ_BATCH_SIMU_DIR="$AZ_BATCH_NODE_SHARED_DIR/gfs/case"
+
+# Setup MPI env.
+source $INTEL_DIR/bin/compilervars.sh intel64
+source $MPI_ROOT/bin64/mpivars.sh
+
+# Setup OpenFOAM env.
+OPENFOAM_VER=6
+OPENFOAM_DIR=$FOAM_INST_DIR/OpenFOAM-$OPENFOAM_VER
+cp -f $AZ_BATCH_SIMU_DIR/misc/openfoam_aliases $OPENFOAM_DIR/etc/config.sh/aliases
+source $OPENFOAM_DIR/etc/bashrc
+
+# Source tool run functions.
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Get number of nodes and compute number of processors.
+IFS=',' read -ra HOSTS <<< "$AZ_BATCH_HOST_LIST"
+nodes=${#HOSTS[@]}
+ppn=`nproc`
+np=$(($nodes * $ppn))
+
+# Change directory to case directory.
+cd $AZ_BATCH_SIMU_DIR
+
+# Export parameters.
+export np
+export ppn

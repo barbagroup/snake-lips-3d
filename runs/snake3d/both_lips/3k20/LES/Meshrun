@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Run from this directory.
+cd ${0%/*} || exit 1
+
+# Source tool run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Copy initial conditions.
+rm -rf 0 && cp -r 0_org 0
+
+# Set directory of RANS.
+RANS_DIR=../RANS
+
+# Copy the mesh from the RANS case.
+cp -r $RANS_DIR/constant/polyMesh constant
+
+# Refine the mesh close to the walls.
+runApplication refineWallLayer '(snake)' 0.7 -overwrite
+mv log.refineWallLayer log.refineWallLayer.1
+runApplication refineWallLayer '(snake)' 0.5 -overwrite
+mv log.refineWallLayer log.refineWallLayer.2
+runApplication refineWallLayer '(snake)' 0.3 -overwrite
+mv log.refineWallLayer log.refineWallLayer.3
+
+
+# Check mesh quality.
+runApplication checkMesh
+
+# Mapt interpolate RANS solution.
+runApplication mapFields $RANS_DIR -consistent -sourceTime latestTime
+
+# Remove non-needed fields.
+cd 0
+rm -f pMean pPrime2Mean UMean UPrime2Mean yPlus omega k nut
+cd ..
+cp 0_org/nut 0
+
+# Decompose the mesh.
+runApplication decomposePar
+
+#------------------------------------------------------------------------------

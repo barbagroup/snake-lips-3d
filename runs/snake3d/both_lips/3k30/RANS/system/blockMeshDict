@@ -1,0 +1,105 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1;
+
+xstart -10.0;
+xend 20.0;
+ystart -10.0;
+yend 10.0;
+zstart -1.6;
+zend 1.6;
+
+vertices
+(
+  ($xstart $ystart $zstart)
+  ($xend   $ystart $zstart)
+  ($xend   $yend   $zstart)
+  ($xstart $yend   $zstart)
+  ($xstart $ystart $zend)
+  ($xend   $ystart $zend)
+  ($xend   $yend   $zend)
+  ($xstart $yend   $zend)
+);
+
+blocks
+(
+  hex (0 1 2 3 4 5 6 7) (75 50 4) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+  bottom
+  {
+    type symmetryPlane;
+    faces
+    (
+      (1 5 4 0)
+    );
+  }
+  top
+  {
+    type symmetryPlane;
+    faces
+    (
+      (3 7 6 2)
+    );
+  }
+  inlet
+  {
+    type patch;
+    faces
+    (
+      (0 4 7 3)
+    );
+  }
+  outlet
+  {
+    type patch;
+    faces
+    (
+      (2 6 5 1)
+    );
+  }
+  front
+  {
+    type cyclic;
+    neighbourPatch back;
+    faces
+    (
+      (4 5 6 7)
+    );
+  }
+  back
+  {
+    type cyclic;
+    neighbourPatch front;
+    faces
+    (
+      (0 3 2 1)
+    );
+  }
+);
+
+mergePatchPairs
+(
+);
+
+//****************************************************************************//

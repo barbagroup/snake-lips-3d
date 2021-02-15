@@ -1,0 +1,148 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application       simpleFoam;
+startFrom         latestTime;
+startTime         0;
+stopAt            endTime;
+endTime           1000;
+deltaT            1;
+writeControl      timeStep;
+writeInterval     100;
+purgeWrite        5;
+writeFormat       ascii;
+writePrecision    8;
+writeCompression  off;
+timeFormat        general;
+timePrecision     6;
+runTimeModifiable true;
+
+functions
+{
+    domain_min_max
+    {
+        type fieldMinMax;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+        enabled true;
+        mode component;
+        writeControl timeStep;
+        writeInterval 1;
+        fields (p U k omega nut);
+    } // domain_min_max
+
+    forces
+    {
+        type forces;
+        functionObjectLibs ("libforces.so");
+        writeControl timeStep;
+        writeInterval 1;
+        patches ("snake");
+        pName p;
+        UName U;
+        rho rhoInf;
+        rhoInf 1.0;
+        CofR (0 0 0);
+        dragDir (1 0 0);
+        liftDir (0 1 0);
+        pitchAxis (0 0 1);
+        magUInf 1.0;
+        lRef 1;
+        Aref 1;
+    } // forces
+
+    probes
+    {
+        type probes;
+        functionObjectLibs ("libsampling.so");
+        writeControl timeStep;
+        writeInterval 1;
+        probeLocations
+        (
+            (0.5 0 0)
+            (1.0 0 0)
+            (2.0 0 0)
+            (3.0 0 0)
+            (4.0 0 0)
+            (5.0 0 0)
+        );
+        fields (U);
+    } // probes
+
+    yPlus
+    {
+        type yPlus;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+        enabled true;
+        writeControl outputTime;
+    } // yPlus
+
+    Q
+    {
+        type Q;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+        enabled true;
+        writeControl outputTime;
+    } // Q
+
+    fieldAverage
+    {
+        type fieldAverage;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+        enabled true;
+        writeControl outputTime;
+        timeStart 100;
+        fields
+        (
+            U
+            {
+                mean on;
+                prime2Mean on;
+                base time;
+            }
+            p
+            {
+                mean on;
+                prime2Mean on;
+                base time;
+            }
+        );
+    } // fieldAverage
+
+    wallPressure
+    {
+        type surfaces;
+        libs ("libsampling.so");
+        writeControl timeStep;
+        writeInterval 10;
+        surfaceFormat raw;
+        fields (p);
+        interpolationScheme cellPoint;
+        surfaces
+        (
+            snake
+            {
+                type patch;
+                patches (snake);
+                triangulate false;
+            }
+        );
+    }
+
+    #includeFunc profiles
+
+};
+
+//****************************************************************************//

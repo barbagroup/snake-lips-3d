@@ -1,0 +1,81 @@
+job_specifications:
+- id: job-snake1k35-both
+  auto_complete: true
+  shm_size: 256m
+  shared_data_volumes:
+  - glustervol
+  tasks:
+  - id: task-01-mesh
+    docker_image: mesnardo/openfoam:v6-gcc-intelmpi-centos
+    multi_instance:
+      num_instances: pool_current_dedicated
+      pre_execution_command: source $AZ_BATCH_NODE_SHARED_DIR/gfs/case/misc/caserc; cd RANS; ./Allclean; ./Meshrun
+      mpi:
+        runtime: intelmpi
+        options:
+          - -np $np
+          - -ppn $ppn
+          - -hosts $AZ_BATCH_HOST_LIST
+    command: renumberMesh -parallel -overwrite > log.renumberMesh
+  - id: task-02-potential
+    depends_on:
+    - task-01-mesh
+    docker_image: mesnardo/openfoam:v6-gcc-intelmpi-centos
+    multi_instance:
+      num_instances: pool_current_dedicated
+      pre_execution_command: source $AZ_BATCH_NODE_SHARED_DIR/gfs/case/misc/caserc; cd RANS
+      mpi:
+        runtime: intelmpi
+        options:
+          - -np $np
+          - -ppn $ppn
+          - -hosts $AZ_BATCH_HOST_LIST
+    command: potentialFoam -parallel > log.potentialFoam
+  - id: task-03-simple
+    depends_on:
+    - task-02-potential
+    docker_image: mesnardo/openfoam:v6-gcc-intelmpi-centos
+    multi_instance:
+      num_instances: pool_current_dedicated
+      pre_execution_command: source $AZ_BATCH_NODE_SHARED_DIR/gfs/case/misc/caserc; cd RANS
+      mpi:
+        runtime: intelmpi
+        options:
+          - -np $np
+          - -ppn $ppn
+          - -hosts $AZ_BATCH_HOST_LIST
+    command: simpleFoam -parallel > log.simpleFoam; runApplication reconstructPar -latestTime; rm -rf processor*; tar -czf postProcessing.tar.gz postProcessing; rm -rf postProcessing
+  - id: task-04-mesh
+    depends_on:
+    - task-03-simple
+    docker_image: mesnardo/openfoam:v6-gcc-intelmpi-centos
+    multi_instance:
+      num_instances: pool_current_dedicated
+      pre_execution_command: source $AZ_BATCH_NODE_SHARED_DIR/gfs/case/misc/caserc; cd LES; ./Allclean; ./Meshrun
+      mpi:
+        runtime: intelmpi
+        options:
+          - -np $np
+          - -ppn $ppn
+          - -hosts $AZ_BATCH_HOST_LIST
+    command: renumberMesh -parallel -overwrite > log.renumberMesh
+  - id: task-05-pimple
+    depends_on:
+    - task-04-mesh
+    docker_image: mesnardo/openfoam:v6-gcc-intelmpi-centos
+    multi_instance:
+      num_instances: pool_current_dedicated
+      pre_execution_command: source $AZ_BATCH_NODE_SHARED_DIR/gfs/case/misc/caserc; cd LES
+      mpi:
+        runtime: intelmpi
+        options:
+          - -np $np
+          - -ppn $ppn
+          - -hosts $AZ_BATCH_HOST_LIST
+    command: pimpleFoam -parallel > log.pimpleFoam; tar -czf postProcessing.tar.gz postProcessing; rm -rf postProcessing; tar -czf all_processors.tar.gz processor*; rm -rf processor*
+    output_data:
+      azure_storage:
+      - storage_account_settings: mystorageaccount
+        local_path: $AZ_BATCH_NODE_SHARED_DIR/gfs/case
+        is_file_share: true
+        remote_path: fileshare/snake3d/snake3d1k35_both
