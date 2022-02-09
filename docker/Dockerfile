@@ -51,7 +51,7 @@ RUN curl http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/9278/l_m
         /opt/intel/ism \
         /opt/intel/parallel_studio_xe_2016.3.068
 
-# Download and build OpenFOAM-v7.
+# Download and build OpenFOAM-v6.
 ENV FOAM_INST_DIR=/opt/OpenFOAM
 ENV PATH=$PATH:/usr/lib64/qt4/bin
 WORKDIR ${FOAM_INST_DIR}
