@@ -7,14 +7,13 @@ import pprint
 import re
 
 
-
 DATADIR = pathlib.Path(__file__).absolute().parent / 'data'
 
 
 def parse_command_line():
     """Parse the command-line options."""
     formatter_class = argparse.ArgumentDefaultsHelpFormatter
-    descr = 'Generic command-line parser for the rolling-piching application.'
+    descr = 'Generic command-line parser for the 3D snake application.'
     parser = argparse.ArgumentParser(description=descr,
                                      formatter_class=formatter_class)
     parser.add_argument('--no-show', dest='show_figures',
