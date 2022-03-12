@@ -19,7 +19,7 @@ datadir = casedir / 'postProcessing' / 'surfaceProfiles'
 figdir = maindir / 'figures'
 
 # Get time values to process.
-times = rodney.get_time_directories(datadir, limits=(50.0, 100.0), stride=1)
+times = rodney.get_saved_times(datadir, limits=(50.0, 100.0), stride=1)
 
 # Set parameters.
 U_inf, c = 1.0, 1.0  # freestream speed and chord length

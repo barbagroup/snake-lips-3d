@@ -17,11 +17,11 @@ figdir = maindir / 'figures'
 
 vel_objs = [
     rodney.UxCenterlineData(
-        'nominal', maindir / 'nominal',
+        'Smagorinsky', maindir / 'smagorinsky' / 'fine',
         plt_kwargs=dict(color='black', linestyle='-')
     ),
     rodney.UxCenterlineData(
-        'fine', maindir / 'fine',
+        'WALE', maindir / 'wale' / 'fine',
         plt_kwargs=dict(color='black', linestyle='--')
     )
 ]

@@ -69,7 +69,7 @@ datadir = casedir / 'postProcessing' / 'wallPressure'
 figdir = maindir / 'figures'
 
 # Set time range to process.
-times = rodney.get_time_directories(datadir, limits=(50.0, 100.0), stride=1)
+times = rodney.get_saved_times(datadir, limits=(50.0, 100.0), stride=1)
 
 filename = 'p_snake.raw'  # name of files containing surface pressure
 

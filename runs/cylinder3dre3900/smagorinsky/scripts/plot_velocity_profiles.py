@@ -14,14 +14,24 @@ args = rodney.parse_command_line()
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
-vel_obj = rodney.VerticalVelocityProfilesData('Present', maindir)
+vel_objs = [
+    rodney.VerticalVelocityProfilesData(
+        'nominal', maindir / 'nominal',
+        plt_kwargs=dict(color='black', linestyle='-')
+    ),
+    rodney.VerticalVelocityProfilesData(
+        'fine', maindir / 'fine',
+        plt_kwargs=dict(color='gray', linestyle='--')
+    )
+]
 
 time_limits = (50.0, 150.0)
-if args.compute:
-    vel_obj.compute('x', time_limits=time_limits, verbose=True)
-    vel_obj.save(f'u_profiles_50_150.txt')
-else:
-    vel_obj.load(f'u_profiles_50_150.txt')
+for vel_obj in vel_objs:
+    if args.compute:
+        vel_obj.compute('x', time_limits=time_limits, verbose=True)
+        vel_obj.save(f'u_profiles_50_150.txt')
+    else:
+        vel_obj.load(f'u_profiles_50_150.txt')
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=10)
@@ -36,11 +46,12 @@ ax.set_ylabel(r'$<u> / U_\infty$')
 U_inf, D = 1.0, 1.0
 y_offsets = {1.06: 4.5, 1.54: 3.1, 2.02: 2.1,
              4.0: 1.0, 7.0: 0.75, 10.0: 0.21}
-for xloc in vel_obj.xlocs:
-    label = 'Present' if xloc == 1.06 else None
-    ax.plot(vel_obj.y / D,
-            y_offsets[xloc] + (vel_obj.values[xloc] - U_inf) / U_inf,
-            label=label, color='black')
+for vel_obj in vel_objs:
+    for xloc in vel_obj.xlocs:
+        label = vel_obj.label if xloc == 1.06 else None
+        ax.plot(vel_obj.y / D,
+                y_offsets[xloc] + (vel_obj.values[xloc] - U_inf) / U_inf,
+                label=label, **vel_obj.plt_kwargs)
 for label, subdata in data.items():
     ax.scatter(*subdata, label=label, s=10)
 ax.set_xlim(-3.0, 3.0)
@@ -56,11 +67,12 @@ if args.save_figures:
     filepath = figdir / 'u_profiles.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
-if args.compute:
-    vel_obj.compute('y', time_limits=time_limits, verbose=True)
-    vel_obj.save('v_profiles_50_150.txt')
-else:
-    vel_obj.load('v_profiles_50_150.txt')
+for vel_obj in vel_objs:
+    if args.compute:
+        vel_obj.compute('y', time_limits=time_limits, verbose=True)
+        vel_obj.save('v_profiles_50_150.txt')
+    else:
+        vel_obj.load('v_profiles_50_150.txt')
 
 # Load data from literature.
 data = rodney.load_v_profiles_literature()
@@ -71,11 +83,12 @@ ax.set_xlabel('y / D')
 ax.set_ylabel(r'$<v> / U_\infty$')
 y_scale = {1.06: -0.7, 1.54: -1.4, 2.02: -2.1,
            4.0: -2.5, 7.0: -2.75, 10.0: -2.9}
-for xloc in vel_obj.xlocs:
-    label = 'Present' if xloc == 1.06 else None
-    ax.plot(vel_obj.y,
-            y_scale[xloc] + vel_obj.values[xloc] / U_inf,
-            label=label, color='black')
+for vel_obj in vel_objs:
+    for xloc in vel_obj.xlocs:
+        label = vel_obj.label if xloc == 1.06 else None
+        ax.plot(vel_obj.y,
+                y_scale[xloc] + vel_obj.values[xloc] / U_inf,
+                label=label, **vel_obj.plt_kwargs)
 for label, subdata in data.items():
     ax.scatter(*subdata, label=label, s=10)
 ax.set_xlim(-3.0, 3.0)

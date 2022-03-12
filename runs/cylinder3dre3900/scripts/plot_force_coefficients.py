@@ -15,9 +15,16 @@ args = rodney.parse_command_line()
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
-coeff_obj = rodney.ForceCoefficientsData('Present', maindir)
-coeff_obj.compute(Lz=numpy.pi)
-_ = coeff_obj.get_stats(time_limits=(50.0, 150.0), verbose=True)
+coeff_objs = [
+    rodney.ForceCoefficientsData('Smagorinsky',
+                                 maindir / 'smagorinsky' / 'fine'),
+    rodney.ForceCoefficientsData('WALE',
+                                 maindir / 'wale' / 'fine')
+]
+
+for coeff_obj in coeff_objs:
+    coeff_obj.compute(Lz=numpy.pi)
+    _ = coeff_obj.get_stats(time_limits=(50.0, 150.0), verbose=True)
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=14)
@@ -26,11 +33,11 @@ pyplot.rc('font', family='serif', size=14)
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
 ax.set_xlabel('Non-dimensional time')
 ax.set_ylabel('Force coefficients')
-t, (cd, cl, cz) = coeff_obj.times, coeff_obj.values
-ax.plot(t, cd, label='$C_D$', color='black')
-ax.plot(t, cl, label='$C_L$', color='gray')
-ax.plot(t, cz, label='$C_Z$', color='black', linestyle='--')
-ax.legend(ncol=1, frameon=False)
+for coeff_obj in coeff_objs:
+    t, (cd, cl, cz) = coeff_obj.times, coeff_obj.values
+    ax.plot(t, cd, label=f'$C_D$ ({coeff_obj.label})')
+    ax.plot(t, cl, label=f'$C_L$ ({coeff_obj.label})')
+ax.legend(loc='lower right', ncol=2, frameon=False)
 ax.set_xlim(0.0, 150.0)
 ax.set_ylim(-2.0, 2.0)
 ax.spines['right'].set_visible(False)
