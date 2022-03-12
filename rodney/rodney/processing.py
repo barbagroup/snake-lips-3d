@@ -99,7 +99,11 @@ class SurfacePressureData:
             xyz, p = load_wall_pressure(datadir, time, 'p_snake.raw')
 
             # Sort values along spanwise axis and per cross-section.
-            xyz, p = sort_sections(xyz, p)
+            if not initialized:
+                index = sort_sections(xyz, p, return_index=True)
+            x, y, z = xyz
+            xyz = (x[index], y[index], z[index])
+            p = p[index]
 
             # Compute the spanwise-averaged surface pressure.
             xy, p_avg = spanwise_average(xyz, p)

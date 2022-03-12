@@ -1,6 +1,7 @@
 """Assistant module with helper functions."""
 
 import numpy
+from scipy.spatial import distance
 
 from .misc import time_to_str
 
@@ -45,7 +46,7 @@ def load_wall_pressure(directory, time, filename):
     return (x, y, z), p
 
 
-def sort_section(xy, p):
+def sort_section(xy, p, return_index=False):
     """Re-order cross-sectional coordinates and values.
 
     New order starts from the leading edge and runs counter-clockwise.
@@ -56,6 +57,9 @@ def sort_section(xy, p):
         x and y surface coordinates, each direction as a 1D array.
     p : numpy.array
         Surface pressure at the coordinates.
+    return_index : bool, optional
+        If True, return sorted indices.
+        If False (default), return sorted coordinates and values.
 
     Returns
     -------
@@ -66,20 +70,40 @@ def sort_section(xy, p):
 
     """
     x, y = xy
-    indices = numpy.argsort(numpy.degrees(numpy.arctan2(y, x)))
 
-    return (x[indices], y[indices]), p[indices]
+    coords = numpy.column_stack(xy)
+    num_points = len(coords)
+
+    dist = distance.cdist(coords, coords, 'euclidean')
+    skip_val = 100.0
+    numpy.fill_diagonal(dist, skip_val)
+
+    index = [numpy.argmax(y)]  # heuristic: starting point is the highest one
+    for _ in range(num_points - 1):
+        start = index[-1]
+        nearest = numpy.argmin(dist[start])  # find index of nearest neighboor
+        index.append(nearest)
+        dist[:, start] = skip_val  # prevent point from being visited again
+
+    if return_index:
+        return numpy.array(index)
+
+    return (x[index], y[index]), p[index]
 
 
-def _sort_spanwise(xyz, p):
+def _sort_spanwise(xyz, p, return_index=False):
     """Sort coordinates and values along the spanwise direction."""
     x, y, z = xyz
-    indices = numpy.argsort(z)
 
-    return (x[indices], y[indices], z[indices]), p[indices]
+    index = numpy.argsort(z)
+
+    if return_index:
+        return index
+
+    return (x[index], y[index], z[index]), p[index]
 
 
-def sort_sections(xyz, p):
+def sort_sections(xyz, p, return_index=False):
     """Re-order coordinates and values.
 
     Data are sorted along the spanwise direction and each spanwise section
@@ -91,6 +115,9 @@ def sort_sections(xyz, p):
         x, y, and z surface coordinates, each direction as a 1D array.
     p : numpy.array
         Surface pressure at the coordinates.
+    return_index : bool, optional
+        If True, return sorted indices.
+        If False (default), return sorted coordinates and values.
 
     Returns
     -------
@@ -100,26 +127,31 @@ def sort_sections(xyz, p):
         Re-ordered surface pressure values.
 
     """
-    xyz, p = _sort_spanwise(xyz, p)
     x, y, z = xyz
 
-    num_points = p.size
+    index = _sort_spanwise(xyz, p, return_index=True)
+    xb, yb, zb = x[index], y[index], z[index]
+    pb = p[index]
+
+    num_points = z.size
     num_sections = numpy.unique(z).size
     num_per_section = num_points // num_sections
 
     for i in range(num_sections):
         s, e = i * num_per_section, (i + 1) * num_per_section
 
-        xy_section, p_section = (x[s:e], y[s:e]), p[s:e]
-        xy_section, p_section = sort_section(xy_section, p_section)
+        x_section, y_section = xb[s:e], yb[s:e]
+        p_section = pb[s:e]
 
-        x[s:e], y[s:e] = xy_section
-        p[s:e] = p_section
+        section_index = sort_section((x_section, y_section), p_section,
+                                     return_index=True)
 
-        assert(numpy.allclose(x[s:e], x[:num_per_section]) and
-               numpy.allclose(y[s:e], y[:num_per_section]))
+        index[s:e] = index[s:e][section_index]
 
-    return (x, y, z), p
+    if return_index:
+        return index
+
+    return (x[index], y[index], z[index]), p[index]
 
 
 def spanwise_average(xyz, p):
