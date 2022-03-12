@@ -150,15 +150,14 @@ class UxCenterlineData:
         with open(filepath, 'r') as infile:
             self.x, self.values = numpy.loadtxt(infile, unpack=True)
 
-    def compute(self, time_limits=None, stride=1):
+    def compute(self, time_limits=None, stride=1,
+                xlims=(0.5, 10.0), zlims=(-1.6, 1.6), nx=200, nz=100):
         """Compute time-averaged spanwise-average x-velocity at centerline."""
         datadir = (self.simudir / 'output' / 'LES' / 'postProcessing' /
                    'surfaceProfiles')
 
         times = get_saved_times(datadir, limits=time_limits, stride=stride)
 
-        xlims, zlims = (0.5, 10.0), (-1.6, 1.6)
-        nx, nz = 200, 100
         X, Z = create_regular_grid_2d(xlims, zlims, nx, nz)
 
         # Compute the time-averaged centerline x-velocity.
