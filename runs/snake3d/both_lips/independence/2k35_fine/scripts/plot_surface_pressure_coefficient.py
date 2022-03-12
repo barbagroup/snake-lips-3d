@@ -19,10 +19,10 @@ cp_obj = rodney.SurfacePressureData('Present', maindir,
                                     plt_kwargs=dict(color='black'))
 
 if args.compute:
-    cp_obj.compute(time_limits=(50.0, 150.0))
-    cp_obj.save('surface_pressure_coefficient_50_150.txt')
+    cp_obj.compute(time_limits=(50.0, 100.0))
+    cp_obj.save('surface_pressure_coefficient_50_100.txt')
 else:
-    cp_obj.load('surface_pressure_coefficient_50_150.txt')
+    cp_obj.load('surface_pressure_coefficient_50_100.txt')
 
 # Set default font family and size for Matplotlib figures.
 pyplot.rc('font', family='serif', size=14)
