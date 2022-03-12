@@ -15,14 +15,19 @@ args = rodney.parse_command_line()
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
-cp_obj = rodney.SurfacePressureData('Present', maindir,
-                                    plt_kwargs=dict(color='black'))
+cp_objs = [
+    rodney.SurfacePressureData('nominal', maindir / '2k35_nominal',
+                               plt_kwargs=dict(color='black')),
+    rodney.SurfacePressureData('fine', maindir / '2k35_fine',
+                               plt_kwargs=dict(color='gray'))
+]
 
-if args.compute:
-    cp_obj.compute(time_limits=(50.0, 150.0))
-    cp_obj.save('surface_pressure_coefficient_50_150.txt')
-else:
-    cp_obj.load('surface_pressure_coefficient_50_150.txt')
+for cp_obj in cp_objs:
+    if args.compute:
+        cp_obj.compute(time_limits=(50.0, 150.0))
+        cp_obj.save('surface_pressure_coefficient_50_150.txt')
+    else:
+        cp_obj.load('surface_pressure_coefficient_50_150.txt')
 
 # Set default font family and size for Matplotlib figures.
 pyplot.rc('font', family='serif', size=14)
@@ -31,9 +36,12 @@ pyplot.rc('font', family='serif', size=14)
 fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
 ax.set_xlabel('$x / c$')
 ax.set_ylabel('$C_p$')
-ax.plot(cp_obj.x, cp_obj.values, **cp_obj.plt_kwargs)
+for cp_obj in cp_objs:
+    ax.plot(cp_obj.x, cp_obj.values, label=cp_obj.label,
+            **cp_obj.plt_kwargs)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
+ax.legend(frameon=False)
 fig.tight_layout()
 
 if args.save_figures:
