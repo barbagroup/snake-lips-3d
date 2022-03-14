@@ -1,59 +1,98 @@
-"""Compare velocity profiles."""
+"""Plot profiles of mean streamwise and transversal velocity components."""
 
-from matplotlib import pyplot
-import numpy
 import pathlib
 
+from matplotlib import pyplot
 
-rootdir = pathlib.Path(__file__).absolute().parents[1]
+import rodney
 
-xlocs = [1.06, 1.54, 2.02, 4.0, 7.0, 10.0]
 
-case1 = rootdir / 'snake3d2k35_both'
-profiles1 = dict()
-for xloc in xlocs:
-    filepath = case1 / 'data' / f'velocity_profile_x{xloc}.txt'
-    with open(filepath, 'r') as infile:
-        profiles1[xloc] = numpy.loadtxt(infile, unpack=True)
+# Parse command-line options.
+args = rodney.parse_command_line()
 
-case2 = rootdir / 'snake3d2k35_both_fine'
-profiles2 = dict()
-for xloc in xlocs:
-    filepath = case2 / 'data' / f'velocity_profile_x{xloc}.txt'
-    with open(filepath, 'r') as infile:
-        profiles2[xloc] = numpy.loadtxt(infile, unpack=True)
+# Set directories.
+maindir = pathlib.Path(__file__).absolute().parents[1]
+figdir = maindir / 'figures'
+
+vel_objs = [
+    rodney.VerticalVelocityProfilesData(
+        'nominal', maindir / '2k35_nominal',
+        plt_kwargs=dict(color='black', linestyle='-')
+    ),
+    rodney.VerticalVelocityProfilesData(
+        'fine', maindir / '2k35_fine',
+        plt_kwargs=dict(color='gray', linestyle='-')
+    )
+]
+
+time_limits = (50.0, 100.0)
+for vel_obj in vel_objs:
+    if args.compute:
+        vel_obj.compute('x', time_limits=time_limits, verbose=True)
+        vel_obj.save(f'u_profiles_50_100.txt')
+    else:
+        vel_obj.load(f'u_profiles_50_100.txt')
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=10)
 
 # Plot vertical profiles of the mean streamwise velocity.
-fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
-ax.set_xlabel('y / D')
-ax.set_ylabel(r'$<u> / U_\infty$')
-y_offsets = {1.06: 4.5, 1.54: 3.1, 2.02: 2.1,
-             4.0: 1.0, 7.0: 0.75, 10.0: 0.21}
-for xloc in xlocs:
-    y, ux, _ = profiles1[xloc]
-    ax.plot(y, y_offsets[xloc] + ux - 1.0, color='black')
-    y, ux, _ = profiles2[xloc]
-    ax.plot(y, y_offsets[xloc] + ux - 1.0, color='C0')
+fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
+ax.text(0.01, 0.9, r'$<u> / U_\infty - 1$', transform=ax.transAxes)
+ax.set_xlabel('x / c')
+ax.set_ylabel('y / c')
+U_inf, c = 1.0, 1.0
+for vel_obj in vel_objs:
+    for iloc, xloc in enumerate(vel_obj.xlocs):
+        label = vel_obj.label if xloc == 1.06 else None
+        ax.plot(iloc + (vel_obj.values[xloc] - U_inf) / U_inf,
+                vel_obj.y / c,
+                label=label, **vel_obj.plt_kwargs)
+    ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
+ax.legend(loc='lower left', frameon=False)
+ax.set_xticks(range(len(vel_obj.xlocs)))
+ax.set_xticklabels(vel_obj.xlocs)
+ax.set_ylim(-3.0, 3.0)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()
+
+if args.save_figures:
+    figdir.mkdir(parents=True, exist_ok=True)
+    filepath = figdir / 'u_profiles.png'
+    fig.savefig(filepath, dpi=300, bbox_inches='tight')
+
+for vel_obj in vel_objs:
+    if args.compute:
+        vel_obj.compute('y', time_limits=time_limits, verbose=True)
+        vel_obj.save('v_profiles_50_100.txt')
+    else:
+        vel_obj.load('v_profiles_50_100.txt')
 
 # Plot vertical profiles of the mean transversal velocity.
-fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
-ax.set_xlabel('y / D')
-ax.set_ylabel(r'$<v> / U_\infty$')
-y_scale = {1.06: -0.7, 1.54: -1.4, 2.02: -2.1,
-           4.0: -2.5, 7.0: -2.75, 10.0: -2.9}
-for xloc in xlocs:
-    y, _, uy = profiles1[xloc]
-    ax.plot(y, y_offsets[xloc] + uy, color='black')
-    y, _, uy = profiles2[xloc]
-    ax.plot(y, y_offsets[xloc] + uy, color='C0')
+fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
+ax.text(0.01, 0.9, r'$<v> / U_\infty$', transform=ax.transAxes)
+ax.set_xlabel('x / c')
+ax.set_ylabel('y / c')
+for vel_obj in vel_objs:
+    for iloc, xloc in enumerate(vel_obj.xlocs):
+        label = vel_obj.label if xloc == 1.06 else None
+        ax.plot(iloc + vel_obj.values[xloc] / U_inf,
+                vel_obj.y / c,
+                label=label, **vel_obj.plt_kwargs)
+    ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
+ax.legend(loc='lower left', frameon=False)
+ax.set_xticks(range(len(vel_obj.xlocs)))
+ax.set_xticklabels(vel_obj.xlocs)
+ax.set_ylim(-3.0, 3.0)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()
 
-pyplot.show()
+if args.save_figures:
+    figdir.mkdir(parents=True, exist_ok=True)
+    filepath = figdir / 'v_profiles.png'
+    fig.savefig(filepath, dpi=300, bbox_inches='tight')
+
+if args.show_figures:
+    pyplot.show()
