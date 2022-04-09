@@ -19,7 +19,9 @@ cp_obj = rodney.SurfacePressureData('Present', maindir,
                                     plt_kwargs=dict(color='black'))
 
 if args.compute:
-    cp_obj.compute(time_limits=(50.0, 100.0))
+    times = numpy.round(numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
+                        decimals=2)
+    cp_obj.compute(times, from_tarball=True)
     cp_obj.save('surface_pressure_coefficient_50_100.txt')
 else:
     cp_obj.load('surface_pressure_coefficient_50_100.txt')

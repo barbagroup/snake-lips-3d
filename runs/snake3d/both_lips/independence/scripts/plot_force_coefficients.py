@@ -17,11 +17,14 @@ figdir = maindir / 'figures'
 
 coeff_objs = [
     rodney.ForceCoefficientsData('nominal', maindir / '2k35_nominal'),
-    rodney.ForceCoefficientsData('fine', maindir / '2k35_fine')
-]
+    rodney.ForceCoefficientsData('fine', maindir / '2k35_fine')]
 
 for coeff_obj in coeff_objs:
-    coeff_obj.compute(Lz=numpy.pi)
+    if args.compute:
+        coeff_obj.compute(Lz=numpy.pi, from_tarball=True)
+        coeff_obj.save('force_coefficients.txt')
+    else:
+        coeff_obj.load('force_coefficients.txt')
     _ = coeff_obj.get_stats(time_limits=(50.0, 100.0), verbose=True)
 
 # Set default font family and size of Matplotlib figures.
@@ -37,7 +40,7 @@ for coeff_obj in coeff_objs:
     ax.plot(t, cl, label=f'$C_L$ ({coeff_obj.label})')
 ax.legend(ncol=2, frameon=False)
 ax.set_xlim(0.0, 100.0)
-ax.set_ylim(-1.5, 2.5)
+ax.set_ylim(-0.5, 2.5)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()

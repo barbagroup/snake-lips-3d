@@ -16,7 +16,13 @@ maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
 coeff_obj = rodney.ForceCoefficientsData('Present', maindir)
-coeff_obj.compute(Lz=numpy.pi)
+
+if args.compute:
+    coeff_obj.compute(Lz=numpy.pi, from_tarball=True)
+    coeff_obj.save('force_coefficients.txt')
+else:
+    coeff_obj.load('force_coefficients.txt')
+
 _ = coeff_obj.get_stats(time_limits=(50.0, 100.0), verbose=True)
 
 # Set default font family and size of Matplotlib figures.

@@ -2,13 +2,14 @@
 
 import pathlib
 
+import numpy
 from matplotlib import pyplot
 
 import rodney
 
 
 # Parse command-line options.
-args = rodney.parse_command_line()
+args = rodney.parse_command_line(is_slow=True)
 
 # Set directories.
 maindir = pathlib.Path(__file__).absolute().parents[1]
@@ -17,17 +18,20 @@ figdir = maindir / 'figures'
 vel_objs = [
     rodney.UxCenterlineData(
         'nominal', maindir / '2k35_nominal',
-        plt_kwargs=dict(color='black', linestyle='-')
+        plt_kwargs=dict(color='C0', linestyle='-')
     ),
     rodney.UxCenterlineData(
         'fine', maindir / '2k35_fine',
-        plt_kwargs=dict(color='gray', linestyle='-')
+        plt_kwargs=dict(color='black', linestyle='--')
     )
 ]
 
+times = numpy.round(numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
+                    decimals=2)
+
 for vel_obj in vel_objs:
     if args.compute:
-        vel_obj.compute(time_limits=(50.0, 100.0), xlims=(0.0, 10.0))
+        vel_obj.compute(times, from_tarball=True)
         vel_obj.save('u_centerline_profile_50_100.txt')
     else:
         vel_obj.load('u_centerline_profile_50_100.txt')

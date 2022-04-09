@@ -2,13 +2,14 @@
 
 import pathlib
 
+import numpy
 from matplotlib import pyplot
 
 import rodney
 
 
 # Parse command-line options.
-args = rodney.parse_command_line()
+args = rodney.parse_command_line(is_slow=True)
 
 # Set directories.
 maindir = pathlib.Path(__file__).absolute().parents[1]
@@ -17,21 +18,25 @@ figdir = maindir / 'figures'
 vel_objs = [
     rodney.VerticalVelocityProfilesData(
         'nominal', maindir / '2k35_nominal',
-        plt_kwargs=dict(color='black', linestyle='-')
+        plt_kwargs=dict(color='C0', linestyle='-')
     ),
     rodney.VerticalVelocityProfilesData(
         'fine', maindir / '2k35_fine',
-        plt_kwargs=dict(color='gray', linestyle='-')
+        plt_kwargs=dict(color='black', linestyle='--')
     )
 ]
 
-time_limits = (50.0, 100.0)
+times = numpy.round(
+    numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
+    decimals=2
+)
+
 for vel_obj in vel_objs:
     if args.compute:
-        vel_obj.compute('x', time_limits=time_limits, verbose=True)
-        vel_obj.save(f'u_profiles_50_100.txt')
+        vel_obj.compute(times, from_tarball=True)
+        vel_obj.save(f'velocity_profiles_50_100.txt')
     else:
-        vel_obj.load(f'u_profiles_50_100.txt')
+        vel_obj.load(f'velocity_profiles_50_100.txt')
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=10)
@@ -45,10 +50,11 @@ U_inf, c = 1.0, 1.0
 for vel_obj in vel_objs:
     for iloc, xloc in enumerate(vel_obj.xlocs):
         label = vel_obj.label if xloc == 1.06 else None
-        ax.plot(iloc + (vel_obj.values[xloc] - U_inf) / U_inf,
-                vel_obj.y / c,
+        y = vel_obj.y
+        ux = vel_obj.values[xloc]['ux']
+        ax.plot(iloc + (ux - U_inf) / U_inf, y / c,
                 label=label, **vel_obj.plt_kwargs)
-    ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
+        ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
 ax.legend(loc='lower left', frameon=False)
 ax.set_xticks(range(len(vel_obj.xlocs)))
 ax.set_xticklabels(vel_obj.xlocs)
@@ -62,13 +68,6 @@ if args.save_figures:
     filepath = figdir / 'u_profiles.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
-for vel_obj in vel_objs:
-    if args.compute:
-        vel_obj.compute('y', time_limits=time_limits, verbose=True)
-        vel_obj.save('v_profiles_50_100.txt')
-    else:
-        vel_obj.load('v_profiles_50_100.txt')
-
 # Plot vertical profiles of the mean transversal velocity.
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
 ax.text(0.01, 0.9, r'$<v> / U_\infty$', transform=ax.transAxes)
@@ -77,10 +76,11 @@ ax.set_ylabel('y / c')
 for vel_obj in vel_objs:
     for iloc, xloc in enumerate(vel_obj.xlocs):
         label = vel_obj.label if xloc == 1.06 else None
-        ax.plot(iloc + vel_obj.values[xloc] / U_inf,
-                vel_obj.y / c,
+        y = vel_obj.y
+        uy = vel_obj.values[xloc]['uy']
+        ax.plot(iloc + uy / U_inf, y / c,
                 label=label, **vel_obj.plt_kwargs)
-    ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
+        ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
 ax.legend(loc='lower left', frameon=False)
 ax.set_xticks(range(len(vel_obj.xlocs)))
 ax.set_xticklabels(vel_obj.xlocs)

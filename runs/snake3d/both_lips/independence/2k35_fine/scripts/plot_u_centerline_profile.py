@@ -2,6 +2,7 @@
 
 import pathlib
 
+import numpy
 from matplotlib import pyplot
 
 import rodney
@@ -17,7 +18,9 @@ figdir = maindir / 'figures'
 vel_obj = rodney.UxCenterlineData('Present', maindir)
 
 if args.compute:
-    vel_obj.compute(time_limits=(50.0, 100.0), xlims=(0.0, 10.0))
+    times = numpy.round(numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
+                        decimals=2)
+    vel_obj.compute(times, from_tarball=True)
     vel_obj.save('u_centerline_profile_50_100.txt')
 else:
     vel_obj.load('u_centerline_profile_50_100.txt')

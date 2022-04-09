@@ -2,6 +2,7 @@
 
 import pathlib
 
+import numpy
 from matplotlib import pyplot
 
 import rodney
@@ -16,12 +17,16 @@ figdir = maindir / 'figures'
 
 vel_obj = rodney.VerticalVelocityProfilesData('Present', maindir)
 
-time_limits = (50.0, 100.0)
+times = numpy.round(
+    numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
+    decimals=2
+)
+
 if args.compute:
-    vel_obj.compute('x', time_limits=time_limits, verbose=True)
-    vel_obj.save(f'u_profiles_50_100.txt')
+    vel_obj.compute(times, from_tarball=True)
+    vel_obj.save(f'velocity_profiles_50_100.txt')
 else:
-    vel_obj.load(f'u_profiles_50_100.txt')
+    vel_obj.load(f'velocity_profiles_50_100.txt')
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=10)
@@ -33,9 +38,9 @@ ax.set_xlabel('x / c')
 ax.set_ylabel('y / c')
 U_inf, c = 1.0, 1.0
 for iloc, xloc in enumerate(vel_obj.xlocs):
-    ax.plot(iloc + (vel_obj.values[xloc] - U_inf) / U_inf,
-            vel_obj.y / c,
-            color='black')
+    y = vel_obj.y
+    ux = vel_obj.values[xloc]['ux']
+    ax.plot(iloc + (ux - U_inf) / U_inf, y / c, color='black')
     ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
 ax.set_xticks(range(len(vel_obj.xlocs)))
 ax.set_xticklabels(vel_obj.xlocs)
@@ -49,21 +54,15 @@ if args.save_figures:
     filepath = figdir / 'u_profiles.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
-if args.compute:
-    vel_obj.compute('y', time_limits=time_limits, verbose=True)
-    vel_obj.save('v_profiles_50_100.txt')
-else:
-    vel_obj.load('v_profiles_50_100.txt')
-
 # Plot vertical profiles of the mean transversal velocity.
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
 ax.text(0.01, 0.9, r'$<v> / U_\infty$', transform=ax.transAxes)
 ax.set_xlabel('x / c')
 ax.set_ylabel('y / c')
 for iloc, xloc in enumerate(vel_obj.xlocs):
-    ax.plot(iloc + vel_obj.values[xloc] / U_inf,
-            vel_obj.y / c,
-            color='black')
+    y = vel_obj.y
+    uy = vel_obj.values[xloc]['uy']
+    ax.plot(iloc + uy / U_inf, y / c, color='black')
     ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
 ax.set_xticks(range(len(vel_obj.xlocs)))
 ax.set_xticklabels(vel_obj.xlocs)
