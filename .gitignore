@@ -9,3 +9,5 @@ tmp
 
 plot_energy_spectrum*
 runs/**/data
+
+.vscode
