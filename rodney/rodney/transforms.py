@@ -3,47 +3,21 @@
 import numpy
 from scipy.spatial import distance
 
-from .misc import time_to_str
-
 
 def create_regular_grid_2d(xlims, ylims, nx, ny):
     """Create a 2D regular mesh-grid."""
-    x, y = numpy.linspace(*xlims, num=nx), numpy.linspace(*ylims, num=ny)
-    return numpy.meshgrid(x, y)
+    xy = numpy.linspace(*xlims, num=nx), numpy.linspace(*ylims, num=ny)
+    return tuple(numpy.meshgrid(*xy))
 
 
-def apply_spatial_mask_2d(x, y, field, xlims, ylims):
+def apply_spatial_mask_2d(xy, values, limits):
     """Get solution in given sub-domain."""
+    x, y = xy
+    xlims, ylims = limits
     mask = numpy.where((x >= xlims[0]) & (x <= xlims[1]) &
                        (y >= ylims[0]) & (y <= ylims[1]))[0]
-    return x[mask], y[mask], field[mask]
 
-
-def load_wall_pressure(directory, time, filename):
-    """Load the surface pressure from file at given time.
-
-    Parameters
-    ----------
-    directory : pathlib.Path
-        Directory containing time folders.
-    time : float
-        Time at which to read the surface pressure.
-    filename : str
-        Name of the file containing the surface pressure data.
-
-    Returns
-    -------
-    tuple(numpy.array)
-        x, y, and z coordinates of the surface points;
-        each direction as 1D array.
-    numpy.array
-        Surface pressure values.
-
-    """
-    filepath = directory / time_to_str(time) / filename
-    with open(filepath, 'r') as infile:
-        x, y, z, p = numpy.loadtxt(infile, dtype=numpy.float64, unpack=True)
-    return (x, y, z), p
+    return (x[mask], y[mask]), values[mask]
 
 
 def sort_section(xy, p, return_index=False):
@@ -184,27 +158,3 @@ def spanwise_average(xyz, p):
     p_avg = numpy.mean(p.reshape((num_sections, num_per_section)), axis=0)
 
     return (x, y), p_avg
-
-
-def pressure_coefficient(p, rho=1.0, U_inf=1.0, D=1.0):
-    """Return the pressure coefficient.
-
-    Parameters
-    ----------
-    p : numpy.array
-        Surface pressure.
-    rho : float, optional
-        Density; default is 1.
-    U_inf : float, optional
-        Freestream speed; default is 1.
-    D : float, optional
-        Characteristic length of the bluff body; default is 1.
-
-    Returns
-    -------
-    numpy.array
-        Surface pressure coefficient.
-
-    """
-    p_dyn = 0.5 * rho * U_inf * D
-    return p / p_dyn

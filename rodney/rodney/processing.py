@@ -6,24 +6,12 @@ from dataclasses import dataclass
 import numpy
 from scipy import interpolate
 
-from .forces import force_coefficients, load_forces_3d
-from .misc import get_saved_times, get_stats, time_to_str
+from .forces import force_coefficients, load_forces
+from .misc import get_stats
 from .transforms import (apply_spatial_mask_2d, create_regular_grid_2d,
-                         load_wall_pressure, pressure_coefficient,
                          sort_sections, spanwise_average)
-
-
-@dataclass
-class Vector:
-    """3D vector."""
-
-    x: numpy.ndarray
-    y: numpy.ndarray
-    z: numpy.ndarray
-
-    @property
-    def values(self):
-        return self.x, self.y, self.z
+from .velocity import load_Ux_yNormal, load_Uxy_xNormal
+from .wallpressure import load_wall_pressure, wall_pressure_coefficient
 
 
 @dataclass
@@ -32,21 +20,51 @@ class ForceCoefficientsData:
 
     label: str
     simudir: pathlib.Path = None
+    times: numpy.ndarray = None
+    values: tuple = None
 
     @property
-    def values(self):
-        return self._values.values
+    def raw_datadir(self):
+        return (self.simudir / 'output' / 'LES' / 'postProcessing' /
+                'forces' / '0')
 
-    def compute(self, Lz=numpy.pi):
+    @property
+    def datadir(self):
+        return self.simudir / 'data'
+
+    @property
+    def tarball(self):
+        return self.simudir / 'output' / 'LES' / 'postProcessing.tar.gz'
+
+    def save(self, filename):
+        """Save data to file."""
+        data = numpy.empty((1 + len(self.values), self.times.size))
+        data[0] = self.times
+        data[1:] = self.values
+        self.datadir.mkdir(parents=True, exist_ok=True)
+        filepath = self.datadir / filename
+        with open(filepath, 'w') as outfile:
+            numpy.savetxt(outfile, data.T, header='Force coefficients')
+
+    def load(self, filename):
+        """Load data from file."""
+        filepath = self.simudir / 'data' / filename
+        with open(filepath, 'r') as infile:
+            self.times, *self.values = numpy.loadtxt(infile, unpack=True)
+
+    def load_raw(self, from_tarball=False):
+        kwargs = dict(filepath=self.raw_datadir / 'forces.dat')
+        if from_tarball:
+            kwargs = dict(tarball=self.tarball,
+                          name='postProcessing/forces/0/forces.dat')
+
+        return load_forces(**kwargs)
+
+    def compute(self, from_tarball=False, Lz=numpy.pi):
         """Load and compute the force coefficients."""
-        datadir = (self.simudir / 'output' / 'LES' / 'postProcessing' /
-                   'forces' / '0')
-        filepath = datadir / 'forces.dat'
-        self.times, fx, fy, fz = load_forces_3d(filepath)
+        self.times, *self.values = self.load_raw(from_tarball=from_tarball)
 
-        # Compute force coefficients.
-        cd, cl, cz = force_coefficients((fx, fy, fz), Lz=Lz)
-        self._values = Vector(cd, cl, cz)
+        self.values = force_coefficients(self.values, Lz=Lz)
 
     def get_stats(self, time_limits=None, verbose=False):
         """Compute and return statistics."""
@@ -69,54 +87,54 @@ class SurfacePressureData:
     values: numpy.ndarray = None
     plt_kwargs: dict = None
 
+    @property
+    def raw_datadir(self):
+        return (self.simudir / 'output' / 'LES' / 'postProcessing' / 
+                'wallPressure')
+
+    @property
+    def datadir(self):
+        return self.simudir / 'data'
+
+    @property
+    def tarball(self):
+        return self.simudir / 'output' / 'LES' / 'postProcessing.tar.gz'
+
     def save(self, filename):
-        """Save data to file."""
-        datadir = self.simudir / 'data'
-        datadir.mkdir(parents=True, exist_ok=True)
-        filepath = datadir / filename
+        """Save processed data to file."""
+        self.datadir.mkdir(parents=True, exist_ok=True)
+        filepath = self.datadir / filename
         with open(filepath, 'w') as outfile:
             numpy.savetxt(outfile, numpy.c_[self.x, self.y, self.values],
-                          comments='Surface pressure coefficient (x, y, cp)')
+                          header='Surface pressure coefficient (x, y, cp)')
 
     def load(self, filename):
-        """Load data from file."""
-        filepath = self.simudir / 'data' / filename
+        """Load processed data from file."""
+        filepath = self.datadir / filename
         with open(filepath, 'r') as infile:
             self.x, self.y, self.values = numpy.loadtxt(infile, unpack=True)
 
-    def compute(self, time_limits=None):
+    def load_raw(self, times, from_tarball=False):
+        kwargs = dict(datadir=self.raw_datadir)
+        if from_tarball:
+            kwargs = dict(tarball=self.tarball)
+
+        return load_wall_pressure(times, **kwargs)
+
+    def compute(self, times, from_tarball=False):
         """Compute the time-averaged spanwise-averaged surface pressure."""
-        # Directory with raw data.
-        datadir = (self.simudir / 'output' / 'LES' /
-                   'postProcessing' / 'wallPressure')
+        # Load instantaneous wall pressure and compute time averaged.
+        xyz, p = self.load_raw(times, from_tarball=from_tarball)
 
-        # Get time values to process within interval.
-        times = get_saved_times(datadir, limits=time_limits)
+        # Sort coordinates and values along the spanwise axis and
+        # per cross-section.
+        xyz, p = sort_sections(xyz, p)
 
-        initialized = False
-        for time in times:
-            # Load instantaneous surface pressure.
-            xyz, p = load_wall_pressure(datadir, time, 'p_snake.raw')
+        # Compute the spanwise average wall pressure.
+        xy, p = spanwise_average(xyz, p)
 
-            # Sort values along spanwise axis and per cross-section.
-            if not initialized:
-                index = sort_sections(xyz, p, return_index=True)
-            x, y, z = xyz
-            xyz = (x[index], y[index], z[index])
-            p = p[index]
-
-            # Compute the spanwise-averaged surface pressure.
-            xy, p_avg = spanwise_average(xyz, p)
-
-            if not initialized:
-                p_mean = numpy.zeros_like(p_avg)
-                initialized = True
-            p_mean += p_avg
-
-        p_mean /= times.size
-
-        # Compute surface pressure coefficient.
-        cp = pressure_coefficient(p_mean)
+        # Switch to wall pressure coefficient.
+        cp = wall_pressure_coefficient(p)
 
         self.x, self.y = xy
         self.values = cp
@@ -132,56 +150,61 @@ class UxCenterlineData:
     values: numpy.ndarray = None
     plt_kwargs: dict = None
 
+    @property
+    def raw_datadir(self):
+        return (self.simudir / 'output' / 'LES' / 'postProcessing' /
+                'surfaceProfiles')
+
+    @property
+    def datadir(self):
+        return self.simudir / 'data'
+
+    @property
+    def tarball(self):
+        return self.simudir / 'output' / 'LES' / 'postProcessing.tar.gz'
+
     def save(self, filename):
         """Save data to file."""
-        datadir = self.simudir / 'data'
-        datadir.mkdir(parents=True, exist_ok=True)
-        filepath = datadir / filename
+        self.datadir.mkdir(parents=True, exist_ok=True)
+        filepath = self.datadir / filename
         with open(filepath, 'w') as outfile:
             numpy.savetxt(
                 outfile, numpy.c_[self.x, self.values],
-                comments='Centerline wake profile of mean x-velocity (x, u)'
+                header='Centerline wake profile of mean x-velocity (x, u)'
             )
 
     def load(self, filename):
         """Load data from file."""
-        datadir = self.simudir / 'data'
-        filepath = datadir / filename
+        filepath = self.datadir / filename
         with open(filepath, 'r') as infile:
             self.x, self.values = numpy.loadtxt(infile, unpack=True)
 
-    def compute(self, time_limits=None, stride=1,
-                xlims=(0.5, 10.0), zlims=(-1.6, 1.6), nx=200, nz=100):
+    def load_raw(self, times, from_tarball=False):
+        kwargs = dict(datadir=self.raw_datadir)
+        if from_tarball:
+            kwargs = dict(tarball=self.tarball)
+
+        return load_Ux_yNormal(times, **kwargs)
+
+    def compute(self, times, from_tarball=False):
         """Compute time-averaged spanwise-average x-velocity at centerline."""
-        datadir = (self.simudir / 'output' / 'LES' / 'postProcessing' /
-                   'surfaceProfiles')
+        xz, ux = self.load_raw(times, from_tarball=from_tarball)
 
-        times = get_saved_times(datadir, limits=time_limits, stride=stride)
+        nx, nz = 200, 100
+        xlims, zlims = (0.0, 10.0), (-1.6, 1.6)
 
-        X, Z = create_regular_grid_2d(xlims, zlims, nx, nz)
+        xz, ux = apply_spatial_mask_2d(xz, ux, (xlims, zlims))
 
-        # Compute the time-averaged centerline x-velocity.
-        initialized = False
-        for time in times:
-            filepath = datadir / time_to_str(time) / 'U_yNormal_x0.0.raw'
-            with open(filepath, 'r') as infile:
-                x, z, ux = numpy.loadtxt(infile, usecols=(0, 2, 3),
-                                         unpack=True)
-            x, z, ux = apply_spatial_mask_2d(x, z, ux, xlims, zlims)
-            if not initialized:
-                ux_avg = numpy.zeros_like(ux)
-                initialized = True
-            ux_avg += ux
-        ux_avg /= times.size
+        XZ = create_regular_grid_2d(xlims, zlims, nx, nz)
 
         # Interpolate data on regular grid.
-        ux_avg = interpolate.griddata((x, z), ux_avg, (X, Z), method='linear')
+        ux = interpolate.griddata(xz, ux, XZ, method='linear')
 
         # Average along spanwise axis.
-        ux_avg = numpy.mean(ux_avg, axis=0)
+        ux = numpy.mean(ux, axis=0)
 
-        self.x = X[0]
-        self.values = ux_avg
+        self.x = XZ[0][0]
+        self.values = ux
 
 
 @dataclass
@@ -196,71 +219,72 @@ class VerticalVelocityProfilesData:
     values: dict = None
     plt_kwargs: dict = None
 
+    @property
+    def raw_datadir(self):
+        return (self.simudir / 'output' / 'LES' / 'postProcessing' /
+                'surfaceProfiles')
+
+    @property
+    def datadir(self):
+        return self.simudir / 'data'
+
+    @property
+    def tarball(self):
+        return self.simudir / 'output' / 'LES' / 'postProcessing.tar.gz'
+
     def save(self, filename):
         """Save data to file."""
-        data = numpy.empty((1 + len(self.values), self.y.size))
+        data = numpy.empty((1 + 2 * len(self.values), self.y.size))
         data[0] = self.y
-        data[1:] = [self.values[xloc] for xloc in self.xlocs]
-        datadir = self.simudir / 'data'
-        datadir.mkdir(parents=True, exist_ok=True)
-        filepath = datadir / filename
+        for i, xloc in enumerate(self.xlocs):
+            data[2 * i + 1] = self.values[xloc]['ux']
+            data[2 * i + 2] = self.values[xloc]['uy']
+
+        self.datadir.mkdir(parents=True, exist_ok=True)
+        filepath = self.datadir / filename
         with open(filepath, 'w') as outfile:
             numpy.savetxt(
                 outfile, data.T,
-                comments=('Vertical line profile of the mean velocity '
-                          f'at x = {", ".join([str(v) for v in self.xlocs])}')
+                header=('Vertical line profile of the mean velocity '
+                        f'at x = {", ".join([str(v) for v in self.xlocs])}')
             )
 
     def load(self, filename):
         """Load data from file."""
-        datadir = self.simudir / 'data'
-        filepath = datadir / filename
+        filepath = self.datadir / filename
         with open(filepath, 'r') as infile:
             data = numpy.loadtxt(infile, unpack=True)
         self.y = data[0]
-        self.values = {k: data[i] for i, k in enumerate(self.xlocs, start=1)}
-
-    def compute(self, dir, time_limits=None, stride=1, verbose=False):
-        """Compute time-averaged spanwise-average x-velocity at centerline."""
-        if dir not in ('x', 'y'):
-            raise ValueError("dir must be either 'x' or 'y'")
-
-        datadir = (self.simudir / 'output' / 'LES' / 'postProcessing' /
-                   'surfaceProfiles')
-
-        times = get_saved_times(datadir, limits=time_limits, stride=stride)
-
-        ylims, zlims = (-3.0, 3.0), (-1.6, 1.6)
-        ny, nz = 200, 100
-        Y, Z = create_regular_grid_2d(ylims, zlims, ny, nz)
-        self.y = Y[0]
-
         self.values = dict()
+        for i, xloc in enumerate(self.xlocs):
+            self.values[xloc] = dict(ux=data[2 * i + 1], uy=data[2 * i + 2])
+
+    def load_raw(self, xlocs, times, from_tarball=False):
+        kwargs = dict(datadir=self.raw_datadir)
+        if from_tarball:
+            kwargs = dict(tarball=self.tarball)
+
+        return load_Uxy_xNormal(xlocs, times, **kwargs)
+
+    def compute(self, times, from_tarball=False):
+        profiles = self.load_raw(self.xlocs, times, from_tarball=from_tarball)
+
+        ny, nz = 200, 100
+        ylims, zlims = (-3.0, 3.0), (-1.6, 1.6)
+        YZ = create_regular_grid_2d(ylims, zlims, ny, nz)
+
         for xloc in self.xlocs:
-            if verbose:
-                print(f'Computing average velocity profiles at x={xloc} ...')
-            # Compute the time-averaged x and y velocity components.
-            initialized = False
-            for time in times:
-                filepath = (datadir / time_to_str(time) /
-                            f'U_xNormal_x{xloc:.2f}.raw')
-                with open(filepath, 'r') as infile:
-                    dir_to_index = {'x': 3, 'y': 4}
-                    y0, z0, v = numpy.loadtxt(
-                        infile, unpack=True, usecols=(1, 2, dir_to_index[dir])
-                    )
-                y, z, v = apply_spatial_mask_2d(y0, z0, v, ylims, zlims)
-                if not initialized:
-                    v_avg = numpy.zeros_like(v)
-                    initialized = True
-                v_avg += v
-            v_avg /= times.size
-
-            # Interpolate data on 2D regular grid.
-            v_avg = interpolate.griddata((y, z), v_avg, (Y, Z),
-                                         method='linear')
-
+            # Interpolate data on a 2D regular grid.
+            yz = profiles[xloc]['yz']
+            ux = interpolate.griddata(
+                yz, profiles[xloc]['ux'], YZ, method='linear'
+            )
+            uy = interpolate.griddata(
+                yz, profiles[xloc]['uy'], YZ, method='linear'
+            )
             # Average data along spanwise axis.
-            v_avg = numpy.mean(v_avg, axis=0)
+            profiles[xloc] = dict(ux=numpy.mean(ux, axis=0),
+                                  uy=numpy.mean(uy, axis=0))
 
-            self.values[xloc] = v_avg
+        self.y = YZ[0][0]
+        self.values = profiles

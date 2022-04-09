@@ -6,7 +6,7 @@ import pprint
 import numpy
 
 
-def parse_command_line():
+def parse_command_line(is_slow=False):
     """Parse the command-line options."""
     formatter_class = argparse.ArgumentDefaultsHelpFormatter
     descr = 'Generic command-line parser for the 3D snake application.'
@@ -24,7 +24,19 @@ def parse_command_line():
     parser.add_argument('--no-compute', dest='compute',
                         action='store_false',
                         help='Do not re-compute; load data from file')
-    return parser.parse_args()
+    parser.add_argument('--force-compute', dest='force_compute',
+                        action='store_true',
+                        help='Force re-computing data; do not load from file')
+
+    args = parser.parse_args()
+    if args.compute and is_slow and not args.force_compute:
+        raise RuntimeError(
+            'this script will take time to complete; '
+            'use "--no-compute" to load already generated data from file(s); '
+            'use "--force-compute" if you really want to re-compute'
+        )
+
+    return args
 
 
 def time_to_str(time):

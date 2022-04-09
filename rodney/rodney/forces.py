@@ -1,13 +1,32 @@
 """Assistant module with functions to process forces."""
 
-import re
 import pathlib
+import re
+import tarfile
+import tempfile
 
 import numpy
 
 
-def load_forces_3d(filepath, limits=(0.0, numpy.infty)):
+def load_forces(filepath=None, tarball=None, name=None, limits=None):
+    if filepath is not None:
+        res = _load_forces(filepath, limits=limits)
+    elif tarball is not None and name is not None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            _extract_member_from_tarball(tarball, name, destdir=tmpdir)
+            filepath = tmpdir + '/' + name
+            res = _load_forces(filepath, limits=limits)
+    else:
+        raise ValueError('invalid parameters; '
+                         'filepath OR (tarball, name) must be specified')
+
+    return res
+
+
+def _load_forces(filepath, limits=None):
     """Load three-dimensional forces from file."""
+    if limits is None:
+        limits = (0.0, numpy.inf)
     tmppath = pathlib.Path(str(filepath) + '.tmp')
     _remove_parentheses(filepath, tmppath)
     with open(tmppath, 'r') as infile:
@@ -20,6 +39,14 @@ def load_forces_3d(filepath, limits=(0.0, numpy.infty)):
     fz = data[3] + data[6]
     mask = numpy.where((t >= limits[0]) & (t <= limits[1]))[0]
     return t[mask], fx[mask], fy[mask], fz[mask]
+
+
+def _extract_member_from_tarball(tarball, name, destdir):
+    with tarfile.open(tarball, 'r|gz') as tar:
+        for member in tar:
+            if member.name == name:
+                tar.extractall(path=destdir, members=[member])
+                break
 
 
 def _remove_parentheses(srcpath, destpath):
