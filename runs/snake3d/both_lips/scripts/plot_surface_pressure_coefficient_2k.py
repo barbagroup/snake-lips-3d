@@ -15,11 +15,12 @@ args = rodney.parse_command_line(is_slow=True)
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
-cases = ['both_lips/2k30', 'front_lip/2k30', 'back_lip/2k30', 'no_lips/2k30']
+angles = [20, 25, 30, 35, 40]
+folders = [f'2k{a}' for a in angles]
 
 cp_objs = [
     rodney.SurfacePressureData(folder, maindir / folder)
-    for folder in cases
+    for folder in folders
 ]
 
 times = numpy.round(
@@ -52,7 +53,7 @@ fig.tight_layout()
 
 if args.save_figures:
     figdir.mkdir(parents=True, exist_ok=True)
-    filepath = figdir / 'surface_pressure_coefficient_compare_2k30.png'
+    filepath = figdir / 'surface_pressure_coefficient_2k.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
 if args.show_figures:

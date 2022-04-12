@@ -200,8 +200,8 @@ class UxCenterlineData:
         # Interpolate data on regular grid.
         ux = interpolate.griddata(xz, ux, XZ, method='linear')
 
-        # Average along spanwise axis.
-        ux = numpy.mean(ux, axis=0)
+        # Average along spanwise axis (ignoring NaNs).
+        ux = numpy.nanmean(ux, axis=0)
 
         self.x = XZ[0][0]
         self.values = ux
@@ -282,9 +282,9 @@ class VerticalVelocityProfilesData:
             uy = interpolate.griddata(
                 yz, profiles[xloc]['uy'], YZ, method='linear'
             )
-            # Average data along spanwise axis.
-            profiles[xloc] = dict(ux=numpy.mean(ux, axis=0),
-                                  uy=numpy.mean(uy, axis=0))
+            # Average data along spanwise axis (ignoring NaNs).
+            profiles[xloc] = dict(ux=numpy.nanmean(ux, axis=0),
+                                  uy=numpy.nanmean(uy, axis=0))
 
         self.y = YZ[0][0]
         self.values = profiles

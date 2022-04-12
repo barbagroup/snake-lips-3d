@@ -52,7 +52,7 @@ fig.tight_layout()
 
 if args.save_figures:
     figdir.mkdir(parents=True, exist_ok=True)
-    filepath = figdir / 'surface_pressure_coefficient_compare_35.png'
+    filepath = figdir / 'surface_pressure_coefficient_35.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
 if args.show_figures:

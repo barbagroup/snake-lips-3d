@@ -15,25 +15,20 @@ args = rodney.parse_command_line(is_slow=True)
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
-cases = {
-    'both_lips': {
-        '2k': [20, 25, 30, 35, 40]
-    }
-}
+cases = {'20': '$AoA=20^o$', '25': '$AoA=25^o$', '30': '$AoA=30^o$',
+         '35': '$AoA=35^o$', '40': '$AoA=40^o$'}
 
 data = dict()
-for lip_cfg in cases.keys():
-    for Re, angles in cases[lip_cfg].items():
-        for AoA in angles:
-            coeff_obj = rodney.ForceCoefficientsData(
-                None, maindir / lip_cfg / f'{Re}{AoA}'
-            )
-            if args.compute:
-                coeff_obj.compute(Lz=numpy.pi, from_tarball=True)
-                coeff_obj.save('force_coefficients.txt')
-            else:
-                coeff_obj.load('force_coefficients.txt')
-            data[f'{lip_cfg}_{Re}{AoA}'] = coeff_obj
+for AoA in cases.keys():
+    coeff_obj = rodney.ForceCoefficientsData(
+        None, maindir / f'2k{AoA}'
+    )
+    if args.compute:
+        coeff_obj.compute(Lz=numpy.pi, from_tarball=True)
+        coeff_obj.save('force_coefficients.txt')
+    else:
+        coeff_obj.load('force_coefficients.txt')
+    data[AoA] = coeff_obj
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=14)
@@ -43,7 +38,7 @@ fig, (ax1, ax2) = pyplot.subplots(figsize=(12.0, 6.0), nrows=2, sharex=True)
 
 ax1.set_ylabel('Lift coefficient')
 for key, d in data.items():
-    ax1.plot(d.times, d.values[1], label=key)
+    ax1.plot(d.times, d.values[1], label=cases[key])
 box = ax1.get_position()
 ax1.set_position([box.x0, box.y0, box.width * 1.0, box.height])
 ax1.legend(loc='upper left', bbox_to_anchor=(1, 1),
@@ -66,7 +61,7 @@ fig.tight_layout()
 
 if args.save_figures:
     figdir.mkdir(parents=True, exist_ok=True)
-    filepath = figdir / 'force_coefficients_both_2k.png'
+    filepath = figdir / 'force_coefficients_2k.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
 if args.show_figures:
