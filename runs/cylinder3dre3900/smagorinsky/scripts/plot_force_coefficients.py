@@ -15,8 +15,14 @@ args = rodney.parse_command_line()
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
-coeff_objs = [rodney.ForceCoefficientsData('nominal', maindir / 'nominal'),
-              rodney.ForceCoefficientsData('fine', maindir / 'fine')]
+coeff_objs = [
+    rodney.ForceCoefficientsData('Present (Smagorinsky, nominal)',
+                                 maindir / 'nominal',
+                                 plt_kwargs=dict(color='C0', zorder=1)),
+    rodney.ForceCoefficientsData('Present (Smagorinsky, fine)',
+                                 maindir / 'fine',
+                                 plt_kwargs=dict(color='black', zorder=0))
+]
 
 for coeff_obj in coeff_objs:
     coeff_obj.compute(Lz=numpy.pi)
@@ -31,9 +37,13 @@ ax.set_xlabel('Non-dimensional time')
 ax.set_ylabel('Force coefficients')
 for coeff_obj in coeff_objs:
     t, (cd, cl, cz) = coeff_obj.times, coeff_obj.values
-    ax.plot(t, cd, label=f'$C_D$ ({coeff_obj.label})')
-    ax.plot(t, cl, label=f'$C_L$ ({coeff_obj.label})')
-ax.legend(ncol=2, frameon=False)
+    ax.plot(t, cd, label=coeff_obj.label, **coeff_obj.plt_kwargs)
+    ax.plot(t, cl, label=None, **coeff_obj.plt_kwargs)
+ax.annotate('$C_D$', xy=(90.0, 1.2), xytext=(100.0, 1.5),
+            arrowprops=dict(arrowstyle='->'))
+ax.annotate('$C_L$', xy=(90.0, 0.5), xytext=(100.0, 0.7),
+            arrowprops=dict(arrowstyle='->'))
+ax.legend(frameon=False, fontsize=12)
 ax.set_xlim(0.0, 150.0)
 ax.set_ylim(-2.0, 2.0)
 ax.spines['right'].set_visible(False)

@@ -22,6 +22,7 @@ class ForceCoefficientsData:
     simudir: pathlib.Path = None
     times: numpy.ndarray = None
     values: tuple = None
+    plt_kwargs: dict = None
 
     @property
     def raw_datadir(self):

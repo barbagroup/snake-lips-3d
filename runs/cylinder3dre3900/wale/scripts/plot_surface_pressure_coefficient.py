@@ -9,22 +9,29 @@ import rodney
 
 
 # Parse command-line options.
-args = rodney.parse_command_line()
+args = rodney.parse_command_line(is_slow=True)
 
 # Set directories.
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
 cp_objs = [
-    rodney.SurfacePressureData('nominal', maindir / 'nominal',
-                               plt_kwargs=dict(color='black')),
-    rodney.SurfacePressureData('fine', maindir / 'fine',
-                               plt_kwargs=dict(color='gray'))
+    rodney.SurfacePressureData('Present (WALE, nominal)',
+                               maindir / 'nominal',
+                               plt_kwargs=dict(color='C0', zorder=1)),
+    rodney.SurfacePressureData('Present (WALE, fine)',
+                               maindir / 'fine',
+                               plt_kwargs=dict(color='black', zorder=0))
 ]
+
+times = numpy.round(
+    numpy.arange(start=50, stop=150 + 1e-3, step=0.05),
+    decimals=2
+)
 
 for cp_obj in cp_objs:
     if args.compute:
-        cp_obj.compute(time_limits=(50.0, 150.0))
+        cp_obj.compute(times)
         cp_obj.save('surface_pressure_coefficient_50_150.txt')
     else:
         cp_obj.load('surface_pressure_coefficient_50_150.txt')
@@ -51,7 +58,7 @@ ax.scatter(theta_dat, cp_dat, label=label,
 ax.set_xlim(0, 180)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-ax.legend(frameon=False)
+ax.legend(frameon=False, fontsize=12)
 fig.tight_layout()
 
 if args.save_figures:

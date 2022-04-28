@@ -2,61 +2,35 @@
 
 ## Introduction
 
-![](data/figures/modified_sections_aoa35.png)
+![fig_snake_sections](data/figures/modified_sections_aoa35.png)
+
+---
 
 ## Cylinder (Re=3900)
 
 ### WALE
 
-#### Nominal
+![fig_cylinder_force_coefficients_wale](./runs/cylinder3dre3900/wale/figures/force_coefficients.png)
 
-![](./runs/cylinder3dre3900/wale/nominal/figures/u_centerline_profile.png)
+![fig_cylinder_cp_wale](./runs/cylinder3dre3900/wale/figures/surface_pressure_coefficient.png)
 
-![](./runs/cylinder3dre3900/wale/nominal/figures/surface_pressure_coefficient.png)
+![fig_cylinder_u_centerline_wale](./runs/cylinder3dre3900/wale/figures/u_centerline_profile.png)
 
-![](./runs/cylinder3dre3900/wale/nominal/figures/u_profiles.png)
-
-![](./runs/cylinder3dre3900/wale/nominal/figures/v_profiles.png)
-
-![](./runs/cylinder3dre3900/wale/nominal/figures/force_coefficients.png)
-
-#### Fine
-
-![](./runs/cylinder3dre3900/wale/fine/figures/u_centerline_profile.png)
-
-![](./runs/cylinder3dre3900/wale/fine/figures/surface_pressure_coefficient.png)
-
-![](./runs/cylinder3dre3900/wale/fine/figures/u_profiles.png)
-
-![](./runs/cylinder3dre3900/wale/fine/figures/v_profiles.png)
-
-![](./runs/cylinder3dre3900/wale/fine/figures/force_coefficients.png)
+![fig_cylinder_u_profiles_wale](./runs/cylinder3dre3900/wale/figures/u_profiles.png)
+![fig_cylinder_v_profiles_wale](./runs/cylinder3dre3900/wale/figures/v_profiles.png)
 
 ### Smagorinsky
 
-#### Nominal
+![fig_cylinder_force_coefficients_smagorinsky](./runs/cylinder3dre3900/smagorinsky/figures/force_coefficients.png)
 
-![](./runs/cylinder3dre3900/smagorinsky/nominal/figures/u_centerline_profile.png)
+![fig_cylinder_cp_smagorinsky](./runs/cylinder3dre3900/smagorinsky/figures/surface_pressure_coefficient.png)
 
-![](./runs/cylinder3dre3900/smagorinsky/nominal/figures/surface_pressure_coefficient.png)
+![fig_cylinder_u_centerline_smagorinsky](./runs/cylinder3dre3900/smagorinsky/figures/u_centerline_profile.png)
 
-![](./runs/cylinder3dre3900/smagorinsky/nominal/figures/u_profiles.png)
+![fig_cylinder_u_profiles_smagorinsky](./runs/cylinder3dre3900/smagorinsky/figures/u_profiles.png)
+![fig_cylinder_v_profiles_smagorinsky](./runs/cylinder3dre3900/smagorinsky/figures/v_profiles.png)
 
-![](./runs/cylinder3dre3900/smagorinsky/nominal/figures/v_profiles.png)
-
-![](./runs/cylinder3dre3900/smagorinsky/nominal/figures/force_coefficients.png)
-
-#### Fine
-
-![](./runs/cylinder3dre3900/smagorinsky/fine/figures/u_centerline_profile.png)
-
-![](./runs/cylinder3dre3900/smagorinsky/fine/figures/surface_pressure_coefficient.png)
-
-![](./runs/cylinder3dre3900/smagorinsky/fine/figures/u_profiles.png)
-
-![](./runs/cylinder3dre3900/smagorinsky/fine/figures/v_profiles.png)
-
-![](./runs/cylinder3dre3900/smagorinsky/fine/figures/force_coefficients.png)
+---
 
 ## Grid-independence study
 
@@ -88,14 +62,10 @@
 
 ## Results
 
----
-
 ### Mean force coefficients versus angle of attack
 
 ![fig_snake_mean_force_coefficients](./runs/snake3d/figures/mean_force_coefficients.png)
 **Figure:** Time-averaged lift and drag coefficients for a cylinder with the original and modified snake cross-sections for different Reynolds numbers and angles of attack. The force coefficients are averaged between 100 and 200 non-dimensional time units for flow simulations.
-
----
 
 ### Reynolds 2000 and 30-degree angle of attack
 
@@ -112,8 +82,6 @@
 ![fig_snake_v_profiles_2k30](./runs/snake3d/figures/v_profiles_2k30.png)
 **Figure:** Mean velocity profiles of the along the crossflow direction at several locations along the streamwise direction. The velocity components are averaged along the spanwise direction and in time (between 100 and 200 non-dimensional time units of flow simulation).
 
----
-
 ### Both lips and Reynolds number 2000
 
 ![fig_snake_force_coefficients_both_2k](./runs/snake3d/both_lips/figures/force_coefficients_2k.png)
@@ -128,8 +96,6 @@
 ![fig_snake_u_profiles_both_2k](./runs/snake3d/both_lips/figures/u_profiles_2k.png)
 ![fig_snake_v_profiles_both_2k](./runs/snake3d/both_lips/figures/v_profiles_2k.png)
 **Figure:** Mean velocity profiles of the along the crossflow direction at several locations along the streamwise direction. The velocity components are averaged along the spanwise direction and in time (between 100 and 200 non-dimensional time units of flow simulation).
-
----
 
 ### Both lips with a 35-degree angle of attack
 
