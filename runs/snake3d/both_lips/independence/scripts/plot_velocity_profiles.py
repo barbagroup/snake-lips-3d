@@ -2,8 +2,8 @@
 
 import pathlib
 
-import numpy
 from matplotlib import pyplot
+import numpy
 
 import rodney
 
@@ -17,12 +17,12 @@ figdir = maindir / 'figures'
 
 vel_objs = [
     rodney.VerticalVelocityProfilesData(
-        'nominal', maindir / '2k35_nominal',
-        plt_kwargs=dict(color='C0', linestyle='-')
+        'Base grid', maindir / '2k35_nominal',
+        plt_kwargs=dict(color='C0', zorder=1)
     ),
     rodney.VerticalVelocityProfilesData(
-        'fine', maindir / '2k35_fine',
-        plt_kwargs=dict(color='black', linestyle='--')
+        'Fine grid', maindir / '2k35_fine',
+        plt_kwargs=dict(color='black', zorder=0)
     )
 ]
 
@@ -47,18 +47,23 @@ ax.text(0.01, 0.9, r'$<u> / U_\infty - 1$', transform=ax.transAxes)
 ax.set_xlabel('x / c')
 ax.set_ylabel('y / c')
 U_inf, c = 1.0, 1.0
+xlocs = [1.06, 1.54, 2.02, 4.0]
 for vel_obj in vel_objs:
-    for iloc, xloc in enumerate(vel_obj.xlocs):
-        label = vel_obj.label if xloc == 1.06 else None
+    for iloc, xloc in enumerate(xlocs):
+        plt_label = vel_obj.label if iloc == 0 else None
         y = vel_obj.y
         ux = vel_obj.values[xloc]['ux']
         ax.plot(iloc + (ux - U_inf) / U_inf, y / c,
-                label=label, **vel_obj.plt_kwargs)
+                label=plt_label, **vel_obj.plt_kwargs)
         ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
-ax.legend(loc='lower left', frameon=False)
-ax.set_xticks(range(len(vel_obj.xlocs)))
-ax.set_xticklabels(vel_obj.xlocs)
+ax.set_xticks(range(len(xlocs)))
+ax.set_xticklabels(xlocs)
+ax.set_xlim(-1.5, 3.5)
 ax.set_ylim(-3.0, 3.0)
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 1.0, box.height])
+ax.legend(loc='upper left', bbox_to_anchor=(1, 1),
+          frameon=False, fontsize=12)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()
@@ -73,18 +78,23 @@ fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
 ax.text(0.01, 0.9, r'$<v> / U_\infty$', transform=ax.transAxes)
 ax.set_xlabel('x / c')
 ax.set_ylabel('y / c')
+xlocs = [1.06, 1.54, 2.02, 4.0]
 for vel_obj in vel_objs:
-    for iloc, xloc in enumerate(vel_obj.xlocs):
-        label = vel_obj.label if xloc == 1.06 else None
+    for iloc, xloc in enumerate(xlocs):
+        plt_label = vel_obj.label if iloc == 0 else None
         y = vel_obj.y
         uy = vel_obj.values[xloc]['uy']
         ax.plot(iloc + uy / U_inf, y / c,
-                label=label, **vel_obj.plt_kwargs)
+                label=plt_label, **vel_obj.plt_kwargs)
         ax.axvline(iloc, color='black', linestyle=':', linewidth=0.5)
-ax.legend(loc='lower left', frameon=False)
-ax.set_xticks(range(len(vel_obj.xlocs)))
-ax.set_xticklabels(vel_obj.xlocs)
+ax.set_xticks(range(len(xlocs)))
+ax.set_xticklabels(xlocs)
+ax.set_xlim(-1.5, 3.5)
 ax.set_ylim(-3.0, 3.0)
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 1.0, box.height])
+ax.legend(loc='upper left', bbox_to_anchor=(1, 1),
+          frameon=False, prop=dict(size=12))
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()

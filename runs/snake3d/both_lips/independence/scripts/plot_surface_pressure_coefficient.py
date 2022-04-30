@@ -16,18 +16,18 @@ maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
 cp_objs = [
-    rodney.SurfacePressureData(
-        'nominal', maindir / '2k35_nominal',
-        plt_kwargs=dict(color='C0', linestyle='-')
-    ),
-    rodney.SurfacePressureData(
-        'fine', maindir / '2k35_fine',
-        plt_kwargs=dict(color='black', linestyle='--')
-    )
+    rodney.SurfacePressureData('Base grid',
+                               maindir / '2k35_nominal',
+                               plt_kwargs=dict(color='C0', zorder=1)),
+    rodney.SurfacePressureData('Fine grid',
+                               maindir / '2k35_fine',
+                               plt_kwargs=dict(color='black', zorder=0))
 ]
 
-times = numpy.round(numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
-                    decimals=2)
+times = numpy.round(
+    numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
+    decimals=2
+)
 
 for cp_obj in cp_objs:
     if args.compute:
@@ -48,7 +48,7 @@ for cp_obj in cp_objs:
             **cp_obj.plt_kwargs)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-ax.legend(frameon=False)
+ax.legend(frameon=False, fontsize=12)
 fig.tight_layout()
 
 if args.save_figures:

@@ -2,8 +2,8 @@
 
 import pathlib
 
-import numpy
 from matplotlib import pyplot
+import numpy
 
 import rodney
 
@@ -17,17 +17,19 @@ figdir = maindir / 'figures'
 
 vel_objs = [
     rodney.UxCenterlineData(
-        'nominal', maindir / '2k35_nominal',
-        plt_kwargs=dict(color='C0', linestyle='-')
+        'Base grid', maindir / '2k35_nominal',
+        plt_kwargs=dict(color='C0', zorder=1)
     ),
     rodney.UxCenterlineData(
-        'fine', maindir / '2k35_fine',
-        plt_kwargs=dict(color='black', linestyle='--')
+        'Fine grid', maindir / '2k35_fine',
+        plt_kwargs=dict(color='black', zorder=0)
     )
 ]
 
-times = numpy.round(numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
-                    decimals=2)
+times = numpy.round(
+    numpy.arange(start=50, stop=100 + 1e-3, step=0.05),
+    decimals=2
+)
 
 for vel_obj in vel_objs:
     if args.compute:
@@ -41,15 +43,16 @@ pyplot.rc('font', family='serif', size=14)
 
 # Plot profile of the mean streamwise velocity along the centerline.
 fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
-ax.set_xlabel('x / c')
+ax.set_xlabel('$x / D$')
 ax.set_ylabel(r'$<u> / U_\infty$')
 U_inf, D = 1.0, 1.0
 for vel_obj in vel_objs:
     ax.plot(vel_obj.x / D, vel_obj.values / U_inf,
             label=vel_obj.label, **vel_obj.plt_kwargs)
+ax.axhline(y=0.0, color='gray', linestyle='--')
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-ax.legend(frameon=False)
+ax.legend(frameon=False, fontsize=12)
 fig.tight_layout()
 
 if args.save_figures:
