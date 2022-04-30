@@ -30,33 +30,31 @@
 ![fig_cylinder_u_profiles_smagorinsky](./runs/cylinder3dre3900/smagorinsky/figures/u_profiles.png)
 ![fig_cylinder_v_profiles_smagorinsky](./runs/cylinder3dre3900/smagorinsky/figures/v_profiles.png)
 
+### Fine
+
+![fig_cylinder_force_coefficients_fine](./runs/cylinder3dre3900/figures/force_coefficients.png)
+
+![fig_cylinder_cp_fine](./runs/cylinder3dre3900/figures/surface_pressure_coefficient.png)
+
+![fig_cylinder_u_centerline_fine](./runs/cylinder3dre3900/figures/u_centerline_profile.png)
+
+![fig_cylinder_u_profiles_fine](./runs/cylinder3dre3900/figures/u_profiles.png)
+![fig_cylinder_v_profiles_fine](./runs/cylinder3dre3900/figures/v_profiles.png)
+
 ---
 
 ## Grid-independence study
 
-### 2k35 (both) - Nominal
+Snake section with both lips at Reynolds number 2000 and a 35-degree angle of attack.
 
-![](./runs/snake3d/both_lips/independence/2k35_nominal/figures/u_centerline_profile.png)
+![fig_snake_force_coefficients_independence](./runs/snake3d/both_lips/independence/figures/force_coefficients.png)
 
-![](./runs/snake3d/both_lips/independence/2k35_nominal/figures/surface_pressure_coefficient.png)
+![fig_snake_cp_independence](./runs/snake3d/both_lips/independence/figures/surface_pressure_coefficient.png)
 
-![](./runs/snake3d/both_lips/independence/2k35_nominal/figures/u_profiles.png)
+![fig_snake_u_centerline_independence](./runs/snake3d/both_lips/independence/figures/u_centerline_profile.png)
 
-![](./runs/snake3d/both_lips/independence/2k35_nominal/figures/v_profiles.png)
-
-![](./runs/snake3d/both_lips/independence/2k35_nominal/figures/force_coefficients.png)
-
-### 2k35 (both) - Fine
-
-![](./runs/snake3d/both_lips/independence/2k35_fine/figures/u_centerline_profile.png)
-
-![](./runs/snake3d/both_lips/independence/2k35_fine/figures/surface_pressure_coefficient.png)
-
-![](./runs/snake3d/both_lips/independence/2k35_fine/figures/u_profiles.png)
-
-![](./runs/snake3d/both_lips/independence/2k35_fine/figures/v_profiles.png)
-
-![](./runs/snake3d/both_lips/independence/2k35_fine/figures/force_coefficients.png)
+![fig_snake_u_profiles_independence](./runs/snake3d/both_lips/independence/figures/u_profiles.png)
+![fig_snake_v_profiles_independence](./runs/snake3d/both_lips/independence/figures/v_profiles.png)
 
 ---
 
