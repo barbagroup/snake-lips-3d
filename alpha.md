@@ -4,6 +4,10 @@
 
 ![fig_snake_sections](data/figures/modified_sections_aoa35.png)
 
+![fig_snake_meshgrid](./runs/snake3d/both_lips/2k35/figures/pyvista_2d_meshgrid.png)
+
+![fig_snake_meshgrid_zoom](./runs/snake3d/both_lips/2k35/figures/pyvista_2d_meshgrid_zoom.png)
+
 ---
 
 ## Cylinder (Re=3900)
