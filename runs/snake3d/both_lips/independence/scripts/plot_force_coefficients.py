@@ -29,7 +29,7 @@ for coeff_obj in coeff_objs:
     _ = coeff_obj.get_stats(time_limits=(50.0, 100.0), verbose=True)
 
 # Set default font family and size of Matplotlib figures.
-pyplot.rc('font', family='serif', size=14)
+pyplot.rc('font', family='serif', size=12)
 
 # Plot history of the force coefficients.
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
@@ -44,8 +44,7 @@ ax.annotate('$C_D$', xy=(40.0, 1.0), xytext=(50.0, 1.2),
 ax.annotate('$C_L$', xy=(40.0, 1.8), xytext=(50.0, 2.0),
             arrowprops=dict(arrowstyle='->'))
 ax.legend(frameon=False, fontsize=12)
-ax.set_xlim(0.0, 100.0)
-ax.set_ylim(0.5, 2.5)
+ax.axis([0, 100, 0.5, 2.5])
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()

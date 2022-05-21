@@ -39,15 +39,15 @@ for vel_obj in vel_objs:
         vel_obj.load('u_centerline_profile_50_100.txt')
 
 # Set default font family and size of Matplotlib figures.
-pyplot.rc('font', family='serif', size=14)
+pyplot.rc('font', family='serif', size=12)
 
 # Plot profile of the mean streamwise velocity along the centerline.
 fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
-ax.set_xlabel('$x / D$')
+ax.set_xlabel('$x / c$')
 ax.set_ylabel(r'$<u> / U_\infty$')
-U_inf, D = 1.0, 1.0
+U_inf, c = 1.0, 1.0
 for vel_obj in vel_objs:
-    ax.plot(vel_obj.x / D, vel_obj.values / U_inf,
+    ax.plot(vel_obj.x / c, vel_obj.values / U_inf,
             label=vel_obj.label, **vel_obj.plt_kwargs)
 ax.axhline(y=0.0, color='gray', linestyle='--')
 ax.spines['right'].set_visible(False)
