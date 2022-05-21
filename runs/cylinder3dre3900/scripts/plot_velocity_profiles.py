@@ -39,7 +39,7 @@ for vel_obj in vel_objs:
         vel_obj.load(f'velocity_profiles_50_150.txt')
 
 # Set default font family and size of Matplotlib figures.
-pyplot.rc('font', family='serif', size=10)
+pyplot.rc('font', family='serif', size=12)
 
 # Load data from literature.
 data = rodney.load_u_profiles_literature()
@@ -62,7 +62,7 @@ for i, (label, subdata) in enumerate(data.items(), start=1):
 ax.set_xlim(-3.0, 3.0)
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 1.0, box.height])
-ax.legend(loc='upper left', bbox_to_anchor=(1, 1), frameon=False)
+ax.legend(loc='upper left', bbox_to_anchor=(1, 1), frameon=False, fontsize=12)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()
@@ -92,7 +92,7 @@ for i, (label, subdata) in enumerate(data.items(), start=1):
 ax.set_xlim(-3.0, 3.0)
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 1.0, box.height])
-ax.legend(loc='upper left', bbox_to_anchor=(1, 1), frameon=False)
+ax.legend(loc='upper left', bbox_to_anchor=(1, 1), frameon=False, fontsize=12)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()

@@ -42,7 +42,7 @@ literature_data = rodney.load_surface_pressure_coefficient_literature()
 theta_dat, cp_dat = literature_data[label]
 
 # Set default font family and size for Matplotlib figures.
-pyplot.rc('font', family='serif', size=14)
+pyplot.rc('font', family='serif', size=12)
 
 # Plot the surface pressure coefficient.
 fig, ax = pyplot.subplots(figsize=(6.0, 4.0))

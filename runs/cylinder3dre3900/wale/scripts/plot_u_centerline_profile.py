@@ -43,7 +43,7 @@ for vel_obj in vel_objs:
 data = rodney.load_u_centerline_profiles_literature()
 
 # Set default font family and size of Matplotlib figures.
-pyplot.rc('font', family='serif', size=14)
+pyplot.rc('font', family='serif', size=12)
 
 # Plot profile of the mean streamwise velocity along the centerline.
 fig, ax = pyplot.subplots(figsize=(6.0, 4.0))

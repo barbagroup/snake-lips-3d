@@ -29,7 +29,7 @@ for coeff_obj in coeff_objs:
     _ = coeff_obj.get_stats(time_limits=(50.0, 150.0), verbose=True)
 
 # Set default font family and size of Matplotlib figures.
-pyplot.rc('font', family='serif', size=14)
+pyplot.rc('font', family='serif', size=12)
 
 # Plot history of the force coefficients.
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
