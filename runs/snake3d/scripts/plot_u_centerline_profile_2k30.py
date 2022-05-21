@@ -57,28 +57,27 @@ for lip_cfg in cases.keys():
 pyplot.rc('font', family='serif', size=12)
 
 plt_kwargs = {
-    'both_lips_2k30': dict(label='both lips', color='C0', linestyle='-'),
-    'back_lip_2k30': dict(label='back lip', color='C1', linestyle='-'),
-    'front_lip_2k30': dict(label='front lip', color='C2', linestyle='-'),
-    'no_lips_2k30': dict(label='no lips', color='C3', linestyle='-')
+    'both_lips_2k30': dict(label='both', color='C0', linestyle='-'),
+    'back_lip_2k30': dict(label='back', color='C1', linestyle='-'),
+    'front_lip_2k30': dict(label='front', color='C2', linestyle='-'),
+    'no_lips_2k30': dict(label='none', color='C3', linestyle='-')
 }
 
 # Plot profile of the mean streamwise velocity along the centerline.
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
-ax.set_xlabel('x / D')
+ax.set_xlabel('$x / c$')
 ax.set_ylabel(r'$<u> / U_\infty$')
 U_inf, D = 1.0, 1.0
 ax.axhline(0.0, color='gray', linestyle='--')
 for label, vel_obj in data.items():
     ax.plot(vel_obj.x / D, vel_obj.values / U_inf, **plt_kwargs[label])
-ax.set_xlim(0.0, 4.0)
-inset_ax = fig.add_axes([0.1, 0.7, 0.2, 0.2])
-for label, vel_obj in data.items():
-    inset_ax.plot(*body[label], **plt_kwargs[label])
-    inset_ax.axhline(0.0, xmin=0.6, xmax=1.0, color='gray', linestyle='--')
-inset_ax.axis('scaled')
-inset_ax.axis('off')
-ax.legend(frameon=False, loc='center right')
+    plt_kwargs[label]['label'] = None
+    if label != 'both_lips_2k30':
+        ax.plot(*body[label], **plt_kwargs[label])
+ax.axis('scaled')
+ax.axis([-0.6, 3.0, -0.5, 1.0])
+ax.set_yticks([-0.5, 0.0, 0.5, 1.0])
+ax.legend(frameon=False, loc='upper left', fontsize=12)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.tight_layout()
