@@ -3,25 +3,33 @@
 ## Introduction
 
 ![fig_snake_sections](data/figures/modified_sections_aoa35.png)
+**Figure:** Original (left) and modified cross sections of the snake during its gliding phase. In addition to the original geometry, we also looked at geometries missing one or two lips.
 
 ![fig_snake_meshgrid](./runs/snake3d/both_lips/2k35/figures/pyvista_2d_meshgrid.png)
+**Figure:** Mesh grid in the vicinity of the snake cross-section.
 
 ![fig_snake_meshgrid_zoom](./runs/snake3d/both_lips/2k35/figures/pyvista_2d_meshgrid_zoom.png)
+**Figure:** Zoom of the mesh grid near the cross-section boundary.
 
 ---
+---
 
-## Cylinder (Re=3900)
+## LES flow over a circular cylinder at Re=3900
 
 ### WALE
 
 ![fig_cylinder_force_coefficients_wale](./runs/cylinder3dre3900/wale/figures/force_coefficients.png)
+**Figure:** History of the lift and drag coefficients on a circular cylinder at $Re=3900$ with a base and a finer mesh grid.
 
 ![fig_cylinder_cp_wale](./runs/cylinder3dre3900/wale/figures/surface_pressure_coefficient.png)
+**Figure:** Mean pressure coefficient on the surface of the circular cylinder at $Re=3900$. The surface pressure is averaged along the spanwise direction and in time (between $100$ and $150$ non-dimensional time units of flow simulation).
 
 ![fig_cylinder_u_centerline_wale](./runs/cylinder3dre3900/wale/figures/u_centerline_profile.png)
+**Figure:** Mean streamwise velocity along the centerline at $y=0$ behind a circular cylinder at $Re=3900$. The velocity profile is averaged along the spanwise direction and in time (between $100$ and $150$ non-dimensional time units of flow simulation).
 
 ![fig_cylinder_u_profiles_wale](./runs/cylinder3dre3900/wale/figures/u_profiles.png)
 ![fig_cylinder_v_profiles_wale](./runs/cylinder3dre3900/wale/figures/v_profiles.png)
+**Figure:** Mean velocity profiles of the along the crossflow direction at several locations along the streamwise direction behind a circular cylinder at $Re=3900$. The velocity components are averaged along the spanwise direction and in time (between $100$ and $150$ non-dimensional time units of flow simulation).
 
 ### Smagorinsky
 
@@ -49,7 +57,7 @@
 
 ## Grid-independence study
 
-Snake section with both lips at Reynolds number 2000 and a 35-degree angle of attack.
+Snake section with both lips at Reynolds number $2000$ and a $35$-degree angle of attack.
 
 ![fig_snake_force_coefficients_independence](./runs/snake3d/both_lips/independence/figures/force_coefficients.png)
 
