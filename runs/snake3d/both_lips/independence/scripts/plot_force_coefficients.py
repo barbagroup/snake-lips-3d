@@ -16,11 +16,11 @@ maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
 coeff_objs = [
-    rodney.ForceCoefficientsData('Base grid',
-                                 maindir / '2k35_nominal',
-                                 plt_kwargs=dict(color='C0', zorder=1)),
-    rodney.ForceCoefficientsData('Fine grid',
+    rodney.ForceCoefficientsData('base grid',
                                  maindir / '2k35_fine',
+                                 plt_kwargs=dict(color='C0', zorder=1)),
+    rodney.ForceCoefficientsData('coarse grid',
+                                 maindir / '2k35_nominal',
                                  plt_kwargs=dict(color='black', zorder=0))
 ]
 

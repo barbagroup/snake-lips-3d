@@ -17,11 +17,11 @@ figdir = maindir / 'figures'
 
 vel_objs = [
     rodney.UxCenterlineData(
-        'Base grid', maindir / '2k35_nominal',
+        'base grid', maindir / '2k35_fine',
         plt_kwargs=dict(color='C0', zorder=1)
     ),
     rodney.UxCenterlineData(
-        'Fine grid', maindir / '2k35_fine',
+        'coarse grid', maindir / '2k35_nominal',
         plt_kwargs=dict(color='black', zorder=0)
     )
 ]
