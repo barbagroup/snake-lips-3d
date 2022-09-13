@@ -22,8 +22,8 @@ body = pyvista.get_reader(str(filepath)).read()
 body = body.slice(normal='y')
 xb, zb = body.points[:, 0], body.points[:, 2]
 
-times = numpy.arange(100.0, 150.0 + 1, 5.0)
-times = [115, 125]
+times = numpy.arange(100.0, 200.0 + 1, 5.0)
+times = [155, 185]
 
 for time in times:
     reader = pyvista.OpenFOAMReader(str(datadir / 'case.foam'))
@@ -61,7 +61,7 @@ for time in times:
 
     if args.save_figures:
         figdir.mkdir(parents=True, exist_ok=True)
-        filepath = figdir / f'pyvista_2d_contours_uy_{int(time):0>4}.png'
+        filepath = figdir / f'pyvista_2d_contours_uy_{time:0.0f}.png'
         fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
     pyplot.close(fig)
@@ -85,7 +85,7 @@ for time in times:
     fig.tight_layout()
 
     if args.save_figures:
-        filepath = figdir / f'pyvista_2d_contours_ux_{int(time):0>3}.png'
+        filepath = figdir / f'pyvista_2d_contours_ux_{time:0.0f}.png'
         fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
     pyplot.close(fig)
