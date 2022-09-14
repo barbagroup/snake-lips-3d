@@ -4,6 +4,7 @@ import argparse
 import pprint
 
 import numpy
+from scipy import signal
 
 
 def parse_command_line(is_slow=False):
@@ -80,8 +81,10 @@ def get_saved_times(directory, limits=None, stride=1):
     return times[mask][::stride]
 
 
-def get_stats(t, f, limits=(0.0, numpy.infty), verbose=False):
+def get_stats(t, f, limits=None, verbose=False):
     """Compute descriptive statistics of signal."""
+    if limits is None:
+        limits = (0.0, numpy.infty)
     mask = numpy.where((t >= limits[0]) & (t <= limits[1]))[0]
     f = f[mask]
     f_mean = numpy.mean(f)
@@ -92,3 +95,26 @@ def get_stats(t, f, limits=(0.0, numpy.infty), verbose=False):
     if verbose:
         pprint.pprint(stats)
     return stats
+
+
+def get_strouhal(t, f, L=1.0, U=1.0, limits=None, order=1):
+    """Compute the Strouhal number based on the frequency of the signal.
+
+    The frequency is computed using the minima of the signal.
+
+    """
+    if limits is None:
+        limits = (0.0, numpy.infty)
+
+    minima = signal.argrelextrema(f, numpy.less_equal, order=order)[0][1:-1]
+
+    mask = numpy.where((t >= limits[0]) & (t <= limits[1]))[0]
+    minima = numpy.intersect1d(minima, mask, assume_unique=True)
+
+    # remove indices that are too close
+    minima = minima[numpy.append(True, minima[1:] - minima[:-1] > order)]
+
+    t_minima = t[minima]
+    strouhal = L / U / numpy.mean(t_minima[1:] - t_minima[:-1])
+
+    return strouhal

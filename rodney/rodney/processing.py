@@ -7,7 +7,7 @@ import numpy
 from scipy import interpolate
 
 from .forces import force_coefficients, load_forces
-from .misc import get_stats
+from .misc import get_stats, get_strouhal
 from .transforms import (apply_spatial_mask_2d, create_regular_grid_2d,
                          sort_sections, spanwise_average)
 from .velocity import load_Ux_yNormal, load_Uxy_xNormal
@@ -75,6 +75,12 @@ class ForceCoefficientsData:
         cl_stats = get_stats(self.times, cl, **kwargs)
         cz_stats = get_stats(self.times, cz, **kwargs)
         return cd_stats, cl_stats, cz_stats
+
+    def get_strouhal(self, L=1.0, U=1.0, time_limits=None, order=1):
+        """Compute Strouhal number from the lift-coefficient curve."""
+        t = self.times
+        cl = self.values[1]
+        return get_strouhal(t, cl, L=L, U=U, limits=time_limits, order=order)
 
 
 @dataclass
