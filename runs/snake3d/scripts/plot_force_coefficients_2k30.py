@@ -3,6 +3,7 @@
 import pathlib
 
 import numpy
+import pandas
 from matplotlib import pyplot
 
 import rodney
@@ -19,10 +20,10 @@ cases = {
     'both_lips': {
         '2k': [30]
     },
-    'back_lip': {
+    'front_lip': {
         '2k': [30]
     },
-    'front_lip': {
+    'back_lip': {
         '2k': [30]
     },
     'no_lips': {
@@ -31,6 +32,9 @@ cases = {
 }
 
 data = dict()
+data_stats = pandas.DataFrame(
+    columns=['case', '<c_d>', 'rms(c_d)', '<c_l>', 'rms(c_l)', 'St'],
+)
 for lip_cfg in cases.keys():
     for Re, angles in cases[lip_cfg].items():
         for AoA in angles:
@@ -42,7 +46,24 @@ for lip_cfg in cases.keys():
                 coeff_obj.save('force_coefficients.txt')
             else:
                 coeff_obj.load('force_coefficients.txt')
-            data[f'{lip_cfg}_{Re}{AoA}'] = coeff_obj
+
+            key = f'{lip_cfg}_{Re}{AoA}'
+            data[key] = coeff_obj
+
+            time_limits = (100.0, 200.0)
+            cd_stats, cl_stats, _ = coeff_obj.get_stats(
+                time_limits=time_limits
+            )
+            strouhal = coeff_obj.get_strouhal(
+                L=1.0, U=1.0, time_limits=time_limits, order=10
+            )
+            data_stats.loc[len(data_stats)] = [
+                key,
+                cd_stats['mean'], cd_stats['rms'],
+                cl_stats['mean'], cl_stats['rms'], strouhal
+            ]
+
+print(data_stats.set_index('case').round(3))
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=12)
@@ -68,7 +89,7 @@ ax2.spines['right'].set_visible(False)
 ax2.spines['top'].set_visible(False)
 
 handles, labels = ax1.get_legend_handles_labels()
-labels = ['both', 'back', 'front', 'none']
+labels = ['both', 'front', 'back', 'none']
 fig.legend(handles=handles, labels=labels, loc='upper center',
            ncol=len(labels), frameon=False, fontsize=12)
 
