@@ -56,11 +56,11 @@ xlocs = [1.06, 1.54, 2.02]
 
 
 def relabel(label):
-    new_labels = ['both', 'back', 'front', 'none']
+    new_labels = ['Both', 'Back', 'Front', 'None']
     for elem in new_labels:
-        if elem in label:
+        if elem.lower() in label:
             return elem
-    return 'none'
+    return 'None'
 
 
 for i, (label, vel_obj) in enumerate(data.items()):

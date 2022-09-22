@@ -57,10 +57,10 @@ for lip_cfg in cases.keys():
 pyplot.rc('font', family='serif', size=12)
 
 plt_kwargs = {
-    'both_lips_2k30': dict(label='both', color='C0', linestyle='-'),
-    'back_lip_2k30': dict(label='back', color='C1', linestyle='-'),
-    'front_lip_2k30': dict(label='front', color='C2', linestyle='-'),
-    'no_lips_2k30': dict(label='none', color='C3', linestyle='-')
+    'both_lips_2k30': dict(label='Both', color='C0', linestyle='-'),
+    'back_lip_2k30': dict(label='Back', color='C1', linestyle='-'),
+    'front_lip_2k30': dict(label='Front', color='C2', linestyle='-'),
+    'no_lips_2k30': dict(label='None', color='C3', linestyle='-')
 }
 
 # Plot profile of the mean streamwise velocity along the centerline.

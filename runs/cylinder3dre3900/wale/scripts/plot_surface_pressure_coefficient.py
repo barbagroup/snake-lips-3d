@@ -16,10 +16,10 @@ maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
 cp_objs = [
-    rodney.SurfacePressureData('base grid',
+    rodney.SurfacePressureData('Base grid',
                                maindir / 'fine',
                                plt_kwargs=dict(color='C0', zorder=1)),
-    rodney.SurfacePressureData('coarse grid',
+    rodney.SurfacePressureData('Coarse grid',
                                maindir / 'nominal',
                                plt_kwargs=dict(color='black', zorder=0))
 ]

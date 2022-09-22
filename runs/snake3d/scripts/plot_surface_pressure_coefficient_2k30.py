@@ -15,10 +15,12 @@ args = rodney.parse_command_line(is_slow=True)
 maindir = pathlib.Path(__file__).absolute().parents[1]
 figdir = maindir / 'figures'
 
-cases = dict(
-    both='both_lips/2k30', front='front_lip/2k30',
-    back='back_lip/2k30', none='no_lips/2k30'
-)
+cases = {
+    'Both': 'both_lips/2k30',
+    'Front': 'front_lip/2k30',
+    'Back': 'back_lip/2k30',
+    'None': 'no_lips/2k30'
+}
 
 cp_objs = [
     rodney.SurfacePressureData(label, maindir / folder)

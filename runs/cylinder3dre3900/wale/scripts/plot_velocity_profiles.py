@@ -17,11 +17,11 @@ figdir = maindir / 'figures'
 
 vel_objs = [
     rodney.VerticalVelocityProfilesData(
-        'base grid', maindir / 'fine',
+        'Base grid', maindir / 'fine',
         plt_kwargs=dict(color='C0', zorder=1)
     ),
     rodney.VerticalVelocityProfilesData(
-        'coarse grid', maindir / 'nominal',
+        'Coarse grid', maindir / 'nominal',
         plt_kwargs=dict(color='black', zorder=0)
     )
 ]
@@ -46,7 +46,7 @@ data = rodney.load_u_profiles_literature()
 
 # Plot vertical profiles of the mean streamwise velocity.
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
-ax.set_xlabel('y / D')
+ax.set_xlabel('$y / D$')
 ax.set_ylabel(r'$<u> / U_\infty$')
 U_inf, D = 1.0, 1.0
 y_offsets = {1.06: 4.5, 1.54: 3.1, 2.02: 2.1,
@@ -77,7 +77,7 @@ data = rodney.load_v_profiles_literature()
 
 # Plot vertical profiles of the mean transversal velocity.
 fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
-ax.set_xlabel('y / D')
+ax.set_xlabel('$y / D$')
 ax.set_ylabel(r'$<v> / U_\infty$')
 y_scale = {1.06: -0.7, 1.54: -1.4, 2.02: -2.1,
            4.0: -2.5, 7.0: -2.75, 10.0: -2.9}

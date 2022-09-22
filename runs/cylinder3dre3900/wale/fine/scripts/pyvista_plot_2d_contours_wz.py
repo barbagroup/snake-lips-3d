@@ -42,8 +42,8 @@ for time in times:
     wz = slice_center.get_array('vorticity', preference='point')[:, 2]
 
     fig, ax = pyplot.subplots(figsize=(6.0, 6.0))
-    ax.set_xlabel('x / c')
-    ax.set_ylabel('y / c')
+    ax.set_xlabel('x / D')
+    ax.set_ylabel('y / D')
     x, y = slice_center.points[:, 0], slice_center.points[:, 1]
     tcf = ax.tricontourf(
         x, y, wz,

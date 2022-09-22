@@ -17,11 +17,11 @@ figdir = maindir / 'figures'
 
 vel_objs = [
     rodney.VerticalVelocityProfilesData(
-        'base grid', maindir / '2k35_fine',
+        'Base grid', maindir / '2k35_fine',
         plt_kwargs=dict(color='C0', zorder=1)
     ),
     rodney.VerticalVelocityProfilesData(
-        'coarse grid', maindir / '2k35_nominal',
+        'Coarse grid', maindir / '2k35_nominal',
         plt_kwargs=dict(color='black', zorder=0)
     )
 ]

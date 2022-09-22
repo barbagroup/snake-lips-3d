@@ -89,7 +89,7 @@ ax2.spines['right'].set_visible(False)
 ax2.spines['top'].set_visible(False)
 
 handles, labels = ax1.get_legend_handles_labels()
-labels = ['both', 'front', 'back', 'none']
+labels = ['Both', 'Front', 'Back', 'None']
 fig.legend(handles=handles, labels=labels, loc='upper center',
            ncol=len(labels), frameon=False, fontsize=12)
 

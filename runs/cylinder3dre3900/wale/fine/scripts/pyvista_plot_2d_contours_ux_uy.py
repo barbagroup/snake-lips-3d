@@ -61,7 +61,7 @@ for time in times:
 
     if args.save_figures:
         figdir.mkdir(parents=True, exist_ok=True)
-        filepath = figdir / f'pyvista_2d_contours_uy_{int(time):0>4}.png'
+        filepath = figdir / f'pyvista_2d_contours_uy_{int(time):0>3}.png'
         fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
     pyplot.close(fig)

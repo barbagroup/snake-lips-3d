@@ -41,8 +41,8 @@ for time in times:
     x, z = slice_center.points[:, 0], slice_center.points[:, 2]
 
     fig, ax = pyplot.subplots(figsize=(6.0, 6.0))
-    ax.set_xlabel('x / D')
-    ax.set_ylabel('z / D')
+    ax.set_xlabel('x / c')
+    ax.set_ylabel('z / c')
     tcf = ax.tricontourf(
         x, z, uy,
         levels=numpy.linspace(-1.0, 1.0, num=20), extend='both', cmap='RdBu_r'
@@ -67,8 +67,8 @@ for time in times:
     pyplot.close(fig)
 
     fig, ax = pyplot.subplots(figsize=(6.0, 6.0))
-    ax.set_xlabel('x / D')
-    ax.set_ylabel('z / D')
+    ax.set_xlabel('x / c')
+    ax.set_ylabel('z / c')
     ax.tricontourf(x, z, ux,
                    levels=numpy.linspace(-1.0, 1.0, num=20), extend='both',
                    cmap='RdBu_r')

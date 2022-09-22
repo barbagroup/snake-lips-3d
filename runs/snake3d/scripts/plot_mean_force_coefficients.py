@@ -21,11 +21,11 @@ cases = {
         '2k': [20, 25, 30, 35, 40],
         '3k': [20, 25, 30, 35, 40]
     },
-    'back_lip': {
+    'front_lip': {
         '1k': [25, 30, 35, 40],
         '2k': [20, 25, 30, 35, 40]
     },
-    'front_lip': {
+    'back_lip': {
         '1k': [25, 30, 35, 40],
         '2k': [20, 25, 30, 35, 40]
     },
@@ -61,8 +61,8 @@ pyplot.rc('font', family='serif', size=12)
 # Plot history of the force coefficients.
 fig, (ax1, ax2) = pyplot.subplots(figsize=(6.0, 6.0), nrows=2)
 
-lip_labels = {'both_lips': 'both', 'back_lip': 'back',
-              'front_lip': 'front', 'no_lips': 'none'}
+lip_labels = {'both_lips': 'Both', 'front_lip': 'Front',
+              'back_lip': 'Back', 'no_lips': 'None'}
 
 ax1.set_xlabel('Angle of attack (deg)')
 ax1.set_ylabel('Lift coefficient')
