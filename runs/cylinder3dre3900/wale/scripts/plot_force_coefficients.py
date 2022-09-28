@@ -3,6 +3,7 @@
 import pathlib
 
 import numpy
+import pandas
 from matplotlib import pyplot
 
 import rodney
@@ -24,9 +25,14 @@ coeff_objs = [
                                  plt_kwargs=dict(color='black', zorder=0))
 ]
 
+df = pandas.DataFrame(columns=['Case', '<C_D>', 'rms(C_L)'])
+
 for coeff_obj in coeff_objs:
     coeff_obj.compute(Lz=numpy.pi)
-    _ = coeff_obj.get_stats(time_limits=(50.0, 150.0), verbose=True)
+    data = coeff_obj.get_stats(time_limits=(50.0, 150.0))
+    df.loc[len(df)] = [coeff_obj.label, data[0]['mean'], data[1]['rms']]
+
+print(df.set_index('Case').round(decimals=2))
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=12)
