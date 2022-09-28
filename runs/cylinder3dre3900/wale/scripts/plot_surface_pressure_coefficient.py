@@ -47,7 +47,7 @@ pyplot.rc('font', family='serif', size=12)
 # Plot the surface pressure coefficient.
 fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
 ax.set_xlabel(r'$\theta$')
-ax.set_ylabel('$C_p$')
+ax.set_ylabel('$<C_p>$')
 for cp_obj in cp_objs:
     angles = 180 + numpy.degrees(numpy.arctan2(cp_obj.y, cp_obj.x))
     mask = numpy.where(angles <= 180)[0]
