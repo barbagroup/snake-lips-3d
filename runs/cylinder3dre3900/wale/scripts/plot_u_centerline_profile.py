@@ -55,6 +55,7 @@ for vel_obj in vel_objs:
             label=vel_obj.label, **vel_obj.plt_kwargs)
 for i, (label, subdata) in enumerate(data.items(), start=1):
     ax.scatter(*subdata, label=label, s=5, color=f'C{i}', marker='o')
+ax.axis([0.0, 10.0, -0.4, 0.8])
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.legend(frameon=False, fontsize=12)
