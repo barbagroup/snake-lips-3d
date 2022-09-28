@@ -25,15 +25,19 @@ coeff_objs = [
                                  plt_kwargs=dict(color='black', zorder=0))
 ]
 
-df = pandas.DataFrame(columns=['Case', '<C_D>', '<C_L>', 'rms(C_L)'])
+df = pandas.DataFrame(columns=['Case', '<C_D>', '<C_L>', 'rms(C_L)', 'St'])
 
 for coeff_obj in coeff_objs:
     coeff_obj.compute(Lz=numpy.pi)
     data = coeff_obj.get_stats(time_limits=(50.0, 150.0))
+    strouhal = coeff_obj.get_strouhal(
+        L=1.0, U=1.0, time_limits=(50.0, 150.0), order=100
+    )
     df.loc[len(df)] = [
         coeff_obj.label,
         data[0]['mean'],
-        data[1]['mean'], data[1]['rms']
+        data[1]['mean'], data[1]['rms'],
+        strouhal
     ]
 
 print(df.set_index('Case').round(decimals=2))
