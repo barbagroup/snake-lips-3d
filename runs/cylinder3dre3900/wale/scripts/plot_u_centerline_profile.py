@@ -3,8 +3,9 @@
 import pathlib
 from dataclasses import dataclass
 
-from matplotlib import pyplot
 import numpy
+import pandas
+from matplotlib import pyplot
 
 import rodney
 
@@ -32,12 +33,28 @@ times = numpy.round(
     decimals=2
 )
 
+df = pandas.DataFrame(columns=['Case', 'L_r/D', 'U_min', 'U_c', 'U_min/U_c'])
+
 for vel_obj in vel_objs:
     if args.compute:
         vel_obj.compute(times)
         vel_obj.save('u_centerline_profile_50_150.txt')
     else:
         vel_obj.load('u_centerline_profile_50_150.txt')
+
+    x, u = vel_obj.x, vel_obj.values
+    # Compute the recirculation length.
+    idx = numpy.where(u <= 0.0)[0][-1]
+    xs, xe = 0.5, numpy.interp(0.0, u[idx:idx+2], x[idx:idx+2])
+    Lr = xe - xs
+    # Compute the minimum value of the velocity profile.
+    U_min = numpy.nanmin(u)
+    # Compute the asymptotic value of the velocity profile.
+    U_c = numpy.mean(u[-21:-1])
+    # Record results in dataframe.
+    df.loc[len(df)] = [vel_obj.label, Lr, U_min, U_c, U_min / U_c]
+
+print(df.set_index('Case').round(decimals=3))
 
 # Load data from literature.
 data = rodney.load_u_centerline_profiles_literature()
