@@ -69,7 +69,7 @@ for lip_cfg in cases.keys():
 
             df.loc[len(df)] = [vel_obj.label, Lr, U_min, U_c, U_min / U_c]
 
-print(df.set_index('Case').round(decimals=3))
+print(df.set_index('Case').round(decimals=2))
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=12)
