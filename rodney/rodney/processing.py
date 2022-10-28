@@ -213,6 +213,22 @@ class UxCenterlineData:
         self.x = XZ[0][0]
         self.values = ux
 
+    def xloc(self, val):
+        """Return the x-location where the velocity = val."""
+        idx = numpy.where(self.values <= val)[0][-1]
+        return numpy.interp(val, self.values[idx:idx+2], self.x[idx: idx+2])
+
+    @property
+    def Umin(self):
+        """Minimum velocity value in the recirculation region."""
+        return numpy.nanmin(self.values)
+
+    @property
+    def Uc(self):
+        """Asymptotic velocity value past the recovery region."""
+        return numpy.mean(self.values[-11:-1])
+
+
 
 @dataclass
 class VerticalVelocityProfilesData:

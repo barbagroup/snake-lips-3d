@@ -3,6 +3,7 @@
 import pathlib
 
 import numpy
+import pandas
 import pyvista
 from matplotlib import pyplot
 
@@ -28,13 +29,17 @@ times = numpy.round(
     decimals=2
 )
 
+df = pandas.DataFrame(columns=['Case', 'L_r/c', 'U_min', 'U_c', 'U_min/U_c'])
+
 data = dict()
 body = dict()
 for lip_cfg in cases.keys():
     for Re, angles in cases[lip_cfg].items():
         for AoA in angles:
+            label = f'{lip_cfg}_{Re}{AoA}'
+
             vel_obj = rodney.UxCenterlineData(
-                None, maindir / lip_cfg / f'{Re}{AoA}'
+                label, maindir / lip_cfg / f'{Re}{AoA}'
             )
 
             if args.compute:
@@ -43,7 +48,7 @@ for lip_cfg in cases.keys():
             else:
                 vel_obj.load('u_centerline_profile_100_200.txt')
 
-            data[f'{lip_cfg}_{Re}{AoA}'] = vel_obj
+            data[label] = vel_obj
 
             filepath = (maindir / lip_cfg / f'{Re}{AoA}' /
                         'RANS' / 'constant' / 'triSurface' / 'snake.obj')
@@ -51,7 +56,20 @@ for lip_cfg in cases.keys():
             _body = _body.slice(normal='z')
             xb, yb = _body.points[:, 0], _body.points[:, 1]
 
-            body[f'{lip_cfg}_{Re}{AoA}'] = (xb, yb)
+            body[label] = (xb, yb)
+
+            # Compute the recirculation length
+            xe = vel_obj.xloc(0.0)
+            idx = numpy.where((xb > 0) & (yb <= 0))[0][-1]
+            xs = numpy.interp(0.0, yb[idx:idx+2], xb[idx:idx+2])
+            Lr = xe - xs
+
+            U_min = vel_obj.Umin
+            U_c = vel_obj.Uc
+
+            df.loc[len(df)] = [vel_obj.label, Lr, U_min, U_c, U_min / U_c]
+
+print(df.set_index('Case').round(decimals=3))
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=12)
