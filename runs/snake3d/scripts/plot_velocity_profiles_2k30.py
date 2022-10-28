@@ -3,6 +3,7 @@
 import pathlib
 
 import numpy
+import pandas
 from matplotlib import pyplot
 
 import rodney
@@ -27,12 +28,22 @@ times = numpy.round(
     decimals=2
 )
 
+U_inf, c = 1.0, 1.0
+xlocs = [1.06, 1.54, 2.02]
+
+columns = ['Case']
+for xloc in xlocs:
+    columns.extend([f'umin@{xloc}', f'ymin@{xloc}'])
+df = pandas.DataFrame(columns=columns)
+
 data = dict()
 for lip_cfg in cases.keys():
     for Re, angles in cases[lip_cfg].items():
         for AoA in angles:
+            label = f'{lip_cfg}_{Re}{AoA}'
+
             vel_obj = rodney.VerticalVelocityProfilesData(
-                None, maindir / lip_cfg / f'{Re}{AoA}'
+                label, maindir / lip_cfg / f'{Re}{AoA}'
             )
 
             if args.compute:
@@ -41,7 +52,17 @@ for lip_cfg in cases.keys():
             else:
                 vel_obj.load(f'velocity_profiles_100_200.txt')
 
-            data[f'{lip_cfg}_{Re}{AoA}'] = vel_obj
+            data[label] = vel_obj
+
+            row = [label]
+            y = vel_obj.y
+            for xloc in xlocs:
+                u = vel_obj.values[xloc]['ux']
+                idx = numpy.argmin(u)
+                row.extend([(u[idx] - U_inf) / U_inf, y[idx] * c])
+            df.loc[len(df)] = row
+
+print(df.set_index('Case').round(decimals=2))
 
 # Set default font family and size of Matplotlib figures.
 pyplot.rc('font', family='serif', size=12)
@@ -51,8 +72,6 @@ fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
 ax.text(0.01, 0.9, r'$<u> / U_\infty - 1$', transform=ax.transAxes)
 ax.set_xlabel('$x / c$')
 ax.set_ylabel('$y / c$')
-U_inf, c = 1.0, 1.0
-xlocs = [1.06, 1.54, 2.02]
 
 
 def relabel(label):
