@@ -20,9 +20,3 @@ The original geometry of the body cross-section of the snake *Chrysopelea paradi
 > https://doi.org/10.6084/m9.figshare.705877.v1
 > Retrieved: 18:26, Sep 09, 2017 (GMT)
 
----
-
-## Copyright and License
-
-(c) 2020-2021 Olivier Mesnard.
-All content is under Creative Commons Attribution [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode.txt), and all code is under [BSD-3 clause](https://github.com/mesnardo/snake-lips-3d/blob/master/LICENSE).
