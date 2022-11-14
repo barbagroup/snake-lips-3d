@@ -229,7 +229,6 @@ class UxCenterlineData:
         return numpy.mean(self.values[-11:-1])
 
 
-
 @dataclass
 class VerticalVelocityProfilesData:
     """Data and metadata for the vertical velocity profiles."""
