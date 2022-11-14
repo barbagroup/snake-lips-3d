@@ -1,11 +1,12 @@
-name: py37-snakelips
+name: py37-snakelips-3d
 channels:
   - defaults
   - conda-forge
 dependencies:
-  - python ==3.7.11
+  - python >=3.7,<3.8
   - matplotlib ==3.4.3
   - numpy ==1.20.3
+  - pandas ==1.2.4
   - pyvista ==0.33.3
   - scipy ==1.4.1
   - tqdm ==4.63.0
