@@ -52,6 +52,7 @@ for lip_cfg in cases.keys():
             coeff_stats = coeff_obj.get_stats(time_limits=(100.0, 200.0))
             _cd.append(coeff_stats[0]['mean'])
             _cl.append(coeff_stats[1]['mean'])
+            print(lip_cfg, Re, AoA, _cd[-1], _cl[-1])
         cd[lip_cfg][Re] = _cd
         cl[lip_cfg][Re] = _cl
 

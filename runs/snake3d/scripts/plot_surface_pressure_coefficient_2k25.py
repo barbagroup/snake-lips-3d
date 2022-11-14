@@ -3,6 +3,7 @@
 import pathlib
 
 import numpy
+import pandas
 from matplotlib import pyplot
 
 import rodney
@@ -32,12 +33,20 @@ times = numpy.round(
     decimals=2
 )
 
+df = pandas.DataFrame(columns=['Case', 'min(C_p)'])
+
 for cp_obj in cp_objs:
     if args.compute:
         cp_obj.compute(times, from_tarball=True)
         cp_obj.save('surface_pressure_coefficient_100_200.txt')
     else:
         cp_obj.load('surface_pressure_coefficient_100_200.txt')
+
+    mask = numpy.where(abs(cp_obj.x - min(cp_obj.x)) < 0.1)[0]
+    cp_min = min(cp_obj.values[mask])
+    df.loc[len(df)] = [cp_obj.label, cp_min]
+
+print(df.set_index('Case').round(decimals=2))
 
 # Set default font family and size for Matplotlib figures.
 pyplot.rc('font', family='serif', size=12)
