@@ -23,6 +23,7 @@ body = body.slice(normal='z')
 xb, yb = body.points[:, 0], body.points[:, 1]
 
 times = numpy.arange(0.0, 200.0 + 0.001, 5.0)
+times = [160]
 
 for time in times:
     reader = pyvista.OpenFOAMReader(str(datadir / 'case.foam'))
@@ -54,15 +55,20 @@ for time in times:
     ax.set_xlabel('x / D')
     ax.set_ylabel('y / D')
     x, y = slice_center.points[:, 0], slice_center.points[:, 1]
-    ax.tricontourf(x, y, wz_avg,
-                   levels=numpy.linspace(-5.0, 5.0, num=20), extend='both')
+    tcf = ax.tricontourf(
+        x, y, wz_avg,
+        levels=numpy.linspace(-10.0, 10.0, num=20), extend='both'
+    )
     ax.fill(xb, yb, color='gray')
     ax.axis('scaled')
-    ax.set_xlim(-1.0, 8.0)
-    ax.set_ylim(-2.0, 2.0)
+    ax.set_xlim(-1.0, 4.0)
+    ax.set_ylim(-1.5, 1.5)
+    cax = ax.inset_axes([1.01, 0.0, 0.02, 1.0], transform=ax.transAxes)
+    fig.colorbar(tcf, ax=ax, cax=cax,
+                 ticks=[-10, -5, 0, 5, 10], extendfrac=0.0)
     fig.tight_layout()
 
     if args.save_figures:
         figdir.mkdir(parents=True, exist_ok=True)
-        filepath = figdir / f'pyvista_2d_contours_wz_avg_{time:0>4}.png'
+        filepath = figdir / f'pyvista_2d_contours_wz_avg_{int(time):0>4}.png'
         fig.savefig(filepath, dpi=300, bbox_inches='tight')
