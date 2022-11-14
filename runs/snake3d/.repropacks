@@ -1,0 +1,6 @@
+**/data/force_coefficients.txt
+**/data/surface_pressure_coefficient_100_200.txt
+**/data/u_centerline_profile_100_200.txt
+**/data/velocity_profiles_100_200.txt
+**/2k25/RANS/constant/triSurface/snake.obj
+**/2k35/RANS/constant/triSurface/snake.obj
