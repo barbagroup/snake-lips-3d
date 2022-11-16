@@ -5,9 +5,12 @@ import pathlib
 
 import petibmpy
 
+import rodney
 
-show_figure = True  # display the Matplotlib figure
-save_figure = True  # save the figure as PDF
+
+# Parse command-line options.
+args = rodney.parse_command_line(is_slow=True)
+
 maindir = pathlib.Path(__file__).absolute().parents[1]
 
 # Load coordinates of the sections from files.
@@ -30,15 +33,11 @@ for i, coords in enumerate(data.values()):
     x_ref_ = x_ref + i
     ax.plot(x_ref_, y_ref, color='black', linestyle='--')
     ax.plot(x, y, color='black', linewidth=2)
-ax.axis('scaled', adjustable='box')
+ax.axis('scaled')
 ax.axis('off')
 fig.tight_layout()
 
-if show_figure:
-    # Display the Matplotlib figure.
-    pyplot.show()
-
-if save_figure:
+if args.save_figures:
     # Save the figure as PDF.
     figdir = maindir / 'figures'
     figdir.mkdir(parents=True, exist_ok=True)
@@ -46,3 +45,7 @@ if save_figure:
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
     filepath = figdir / f'modified_sections_aoa{round(aoa)}.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
+
+if args.show_figures:
+    # Display the Matplotlib figure.
+    pyplot.show()
