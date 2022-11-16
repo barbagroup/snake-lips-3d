@@ -1,0 +1,4 @@
+nominal/output/LES/postProcessing/forces/0/forces.dat
+fine/output/LES/postProcessing/forces/0/forces.dat
+nominal/data/*
+fine/data/*

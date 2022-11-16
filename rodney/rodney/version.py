@@ -50,4 +50,4 @@ MICRO = _version_micro
 VERSION = __version__
 PACKAGES = ['rodney']
 PACKAGE_DATA = {'rodney': ['data']}
-REQUIRES = ['numpy']
+REQUIRES = ['numpy', 'scipy']

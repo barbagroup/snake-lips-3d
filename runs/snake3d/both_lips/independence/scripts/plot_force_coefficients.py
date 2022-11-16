@@ -1,46 +1,58 @@
-"""Compare the history of the force coefficients."""
+"""Plot the history of the force coefficients."""
 
-from matplotlib import pyplot
-import numpy
 import pathlib
+
+import numpy
+from matplotlib import pyplot
 
 import rodney
 
 
-rootdir = pathlib.Path(__file__).absolute().parents[1]
+# Parse command-line options.
+args = rodney.parse_command_line()
 
-case1 = rootdir / 'snake3d2k35_both'
-datadir1 = case1 / 'output' / 'LES' / 'postProcessing' / 'forces' / '0'
-filepath = datadir1 / 'forces.dat'
-t1, fx1, fy1, fz1 = rodney.load_forces_3d(filepath)
+# Set directories.
+maindir = pathlib.Path(__file__).absolute().parents[1]
+figdir = maindir / 'figures'
 
-case2 = rootdir / 'snake3d2k35_both_fine'
-datadir2 = case2 / 'output' / 'LES' / 'postProcessing' / 'forces' / '0'
-filepath = datadir2 / 'forces.dat'
-t2, fx2, fy2, fz2 = rodney.load_forces_3d(filepath)
+coeff_objs = [
+    rodney.ForceCoefficientsData('Base grid',
+                                 maindir / '2k35_fine',
+                                 plt_kwargs=dict(color='C0', zorder=1)),
+    rodney.ForceCoefficientsData('Coarse grid',
+                                 maindir / '2k35_nominal',
+                                 plt_kwargs=dict(color='black', zorder=0))
+]
 
-# Compute force coefficients.
-rho, U_inf, D = 1.0, 1.0, 1.0
-Lz = numpy.pi * D  # spanwise length
-p_dyn = 0.5 * rho * U_inf * D * Lz  # dynamic pressure
-cd1, cl1, cz1 = fx1 / p_dyn, fy1 / p_dyn, fz1 / p_dyn
-cd2, cl2, cz2 = fx2 / p_dyn, fy2 / p_dyn, fz2 / p_dyn
+for coeff_obj in coeff_objs:
+    coeff_obj.compute(Lz=numpy.pi, from_tarball=True)
+    _ = coeff_obj.get_stats(time_limits=(50.0, 100.0), verbose=True)
 
 # Set default font family and size of Matplotlib figures.
-pyplot.rc('font', family='serif', size=14)
+pyplot.rc('font', family='serif', size=12)
 
 # Plot history of the force coefficients.
-fig, ax = pyplot.subplots(figsize=(8.0, 6.0))
+fig, ax = pyplot.subplots(figsize=(8.0, 4.0))
 ax.set_xlabel('Non-dimensional time')
 ax.set_ylabel('Force coefficients')
-ax.plot(t1, cd1, label='$C_D$')
-ax.plot(t1, cl1, label='$C_L$')
-ax.plot(t1, cz1, label='$C_Z$')
-ax.plot(t2, cd2, label='$C_D$', linestyle='--')
-ax.plot(t2, cl2, label='$C_L$', linestyle='--')
-ax.plot(t2, cz2, label='$C_Z$', linestyle='--')
-ax.legend(ncol=3, frameon=False)
-ax.set_ylim(-2.0, 2.0)
+for coeff_obj in coeff_objs:
+    t, (cd, cl, cz) = coeff_obj.times, coeff_obj.values
+    ax.plot(t, cd, label=coeff_obj.label, **coeff_obj.plt_kwargs)
+    ax.plot(t, cl, label=None, **coeff_obj.plt_kwargs)
+ax.annotate('$C_D$', xy=(40.0, 1.0), xytext=(50.0, 1.2),
+            arrowprops=dict(arrowstyle='->'))
+ax.annotate('$C_L$', xy=(40.0, 1.8), xytext=(50.0, 2.0),
+            arrowprops=dict(arrowstyle='->'))
+ax.legend(frameon=False, fontsize=12)
+ax.axis([0, 100, 0.5, 2.5])
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
 fig.tight_layout()
 
-pyplot.show()
+if args.save_figures:
+    figdir.mkdir(parents=True, exist_ok=True)
+    filepath = figdir / 'force_coefficients.png'
+    fig.savefig(filepath, dpi=300, bbox_inches='tight')
+
+if args.show_figures:
+    pyplot.show()

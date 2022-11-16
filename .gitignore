@@ -3,10 +3,13 @@ log_shipyard
 
 triSurface
 
-figures
 output
 
 tmp
 
 plot_energy_spectrum*
 runs/**/data
+
+snake-lips-3d-repropacks
+
+.vscode

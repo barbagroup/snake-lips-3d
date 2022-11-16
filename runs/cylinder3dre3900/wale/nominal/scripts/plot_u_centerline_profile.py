@@ -1,9 +1,9 @@
 """Plot the centerline mean streamwise velocity."""
 
-from matplotlib import pyplot
-import numpy
 import pathlib
-from scipy import interpolate
+from dataclasses import dataclass
+
+from matplotlib import pyplot
 
 import rodney
 
@@ -13,40 +13,15 @@ args = rodney.parse_command_line()
 
 # Set directories.
 maindir = pathlib.Path(__file__).absolute().parents[1]
-casedir = maindir / 'output' / 'LES'
-datadir = casedir / 'postProcessing' / 'surfaceProfiles'
 figdir = maindir / 'figures'
 
-# Get time values to process.
-times = rodney.get_time_directories(datadir, limits=(50.0, 150.0), stride=1)
+vel_obj = rodney.UxCenterlineData('Present', maindir)
 
-# Set parameters.
-U_inf, D = 1.0, 1.0
-
-# Create interpolation grid.
-xlims, zlims = (0.5, 10.0), (-1.6, 1.6)
-nx, nz = 200, 100
-Xi, Zi = rodney.create_regular_grid_2d(xlims, zlims, nx, nz)
-
-
-filename = 'U_yNormal_x0.0.raw'
-initialized = False
-for time in times:
-    filepath = datadir / rodney.time_to_str(time) / filename
-    with open(filepath, 'r') as infile:
-        x, z, ux = numpy.loadtxt(infile, usecols=(0, 2, 3), unpack=True)
-    x, z, ux = rodney.apply_spatial_mask_2d(x, z, ux, xlims, zlims)
-    if not initialized:
-        ux_avg = ux.copy()
-        initialized = True
-    else:
-        ux_avg += ux
-# Average in time.
-ux_avg /= times.size
-# Interpolate data on regular grid.
-ux_avg = interpolate.griddata((x, z), ux_avg, (Xi, Zi), method='linear')
-# Average along spanwise axis.
-ux_avg = numpy.mean(ux_avg, axis=0)
+if args.compute:
+    vel_obj.compute(time_limits=(50.0, 150.0))
+    vel_obj.save('u_centerline_profile_50_150.txt')
+else:
+    vel_obj.load('u_centerline_profile_50_150.txt')
 
 # Load data from literature.
 data = rodney.load_u_centerline_profiles_literature()
@@ -58,7 +33,8 @@ pyplot.rc('font', family='serif', size=14)
 fig, ax = pyplot.subplots(figsize=(6.0, 4.0))
 ax.set_xlabel('x / D')
 ax.set_ylabel(r'$<u> / U_\infty$')
-ax.plot(Xi[0], ux_avg / U_inf, label='Present', color='black')
+U_inf, D = 1.0, 1.0
+ax.plot(vel_obj.x / D, vel_obj.values / U_inf, label='Present', color='black')
 for label, subdata in data.items():
     ax.scatter(*subdata, label=label, s=10)
 ax.spines['right'].set_visible(False)
@@ -67,11 +43,9 @@ ax.legend(frameon=False)
 fig.tight_layout()
 
 if args.save_figures:
-    # Save Matplotlib figures.
     figdir.mkdir(parents=True, exist_ok=True)
     filepath = figdir / 'u_centerline_profile.png'
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
 
 if args.show_figures:
-    # Display Matplotlib figures.
     pyplot.show()
