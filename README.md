@@ -91,3 +91,14 @@ az storage file download-batch --source fileshare/snake3d2k35_both --destination
 and $3000$ versus the angle of attack of a snake cross-section with both lips, only the front
 lip or the back lip, and no lips. All values are averaged along the spanwise direction and in
 time (between $100$ and $200$ non-dimensional time units of flow simulation).
+
+## Reproducibility packages
+
+To reproduce the figures, download the Zenodo archive (5.7 GB), create a conda environment, and execute the `misc/process_all.py` script located in the `snake-lips-3d-repropacks` folder.
+
+```shell
+cd snake-lips-3d-repropacks
+conda env create --name=py37-snakelips-3d --file=environment.yml
+conda activate py37-snakelips-3d
+python misc/process_all.py
+```
