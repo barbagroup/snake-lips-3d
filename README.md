@@ -94,7 +94,9 @@ time (between $100$ and $200$ non-dimensional time units of flow simulation).
 
 ## Reproducibility packages
 
-To reproduce the figures, download the Zenodo archive (5.7 GB), create a conda environment, and execute the `misc/process_all.py` script located in the `snake-lips-3d-repropacks` folder.
+* Olivier Mesnard, & Lorena A. Barba. (2022). Effect of the lips on the gliding performance of the Chrysopelea paradisi snake with 3D OpenFOAM on Azure (repro-packs). [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4732946.svg)](https://doi.org/10.5281/zenodo.7394800)
+
+To reproduce the figures, download the Zenodo archive (6.7 GB), create a conda environment, and execute the `misc/process_all.py` script located in the `snake-lips-3d-repropacks` folder.
 
 ```shell
 cd snake-lips-3d-repropacks
